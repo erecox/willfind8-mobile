@@ -3,6 +3,7 @@ import ProfileHeader from "@/components/ui/ProfileHeader";
 import SettingOption from "@/components/ui/SettingOption";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { router, useFocusEffect } from "expo-router";
+import React from "react";
 import { useCallback, useEffect } from "react";
 import { View, StyleSheet, Alert, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -77,6 +78,11 @@ export default function ProfileScreen() {
           title="My Listings"
           icon="post-add"
           onPress={handleMyListingPress}
+        />
+         <SettingOption
+          title="Notifications"
+          icon="notifications"
+          onPress={handleNotificationPress}
         />
 
         {/* Divider for separating account management */}

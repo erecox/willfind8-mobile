@@ -276,15 +276,8 @@ const SearchLayout = () => {
         renderItem={({ item }) => (
           <PostCard
             size={width / 2}
-            title={item.title}
-            city={item.city}
-            picture={item.picture}
-            price_formatted={item.price_formatted}
-            count_pictures={item.count_pictures}
+            post={item}
             onPress={(e: any) => handlePostClick(item)}
-            user_id={item.user_id}
-            id={item.id}
-            savedByLoggedUser={item.savedByLoggedUser}
             toggleSaved={(id) => handleToggleSaved(id, user)}
           />
         )}

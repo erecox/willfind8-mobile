@@ -17,31 +17,34 @@ import LoadingBar from "@/components/ui/cards/LoadingBar";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useAuthModal } from "@/lib/auth/AuthModelProvider";
 import SavedButton from "@/components/ui/cards/SavedButton";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { Alert } from "react-native";
+import { useReportSeller } from "@/components/inputs/ReportSellerModal";
 
 export default function DetailsLayout() {
   const route = useRouteInfo();
   const { user } = useAuth();
+  const { openSheet, closeSheet } = useReportSeller();
   const { showLoginModal } = useAuthModal();
   const { id } = route.params;
   const postId = parseInt(id?.toString());
   const {
     items,
-    relatedPostIds,
+    relatedPosts,
     loadingStates,
+    pagination,
     error,
     fetchRelatedPosts,
     fetchPost,
     fetchSellerPosts,
     addToSavedPost,
-    sellerPostIds,
+    sellerPosts,
     extras,
   } = usePostStore();
   const post = items[postId];
 
-  const userPosts = sellerPostIds.map((id) => items[id]);
+  const userPosts = sellerPosts[post?.user_id]?.map((id) => items[id]);
+  const rPosts = relatedPosts[postId]?.map((id) => items[id]);
   const sepecs = useRef<
     Array<{ id: number; name: string; value: string; type: string }>
   >([]);
@@ -77,11 +80,12 @@ export default function DetailsLayout() {
   }, [fetchSellerPosts]);
 
   const loadMore = () => {
-    fetchRelatedPosts(postId, {
-      sort: "created_at",
-      op: "search",
-      perPage: 10,
-    });
+    if (pagination.related.hasMore && !loadingStates.fetchRelated)
+      fetchRelatedPosts(postId, {
+        sort: "created_at",
+        op: "search",
+        perPage: 10,
+      });
   };
 
   const handleToggleSaved = (postId: number) => {
@@ -110,7 +114,7 @@ export default function DetailsLayout() {
           case 1:
             Alert.alert(
               "Are you sure?",
-              "You would not seeing ads from this seller.",
+              "You would not be seeing ads from this seller.",
               [
                 { text: "Yes", style: "destructive" },
                 { text: "Cancel", style: "cancel" },
@@ -119,7 +123,7 @@ export default function DetailsLayout() {
             break;
 
           case destructiveButtonIndex:
-            // Delete
+            openSheet();
             break;
 
           case cancelButtonIndex:
@@ -184,7 +188,6 @@ export default function DetailsLayout() {
               post={post}
               userPosts={userPosts}
             />
-            <LoadingBar loading={loadingStates.fetchPost} />
           </View>
         }
         ListEmptyComponent={
@@ -207,7 +210,7 @@ export default function DetailsLayout() {
           );
         }}
         keyExtractor={(item: any) => item.id}
-        data={relatedPostIds.map((id) => items[id])}
+        data={rPosts}
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={
@@ -230,6 +233,10 @@ export default function DetailsLayout() {
         }
         initialNumToRender={10}
         removeClippedSubviews
+      />
+      <LoadingBar
+        style={{ position: "absolute", top: 0, zIndex: 100 }}
+        loading={loadingStates.fetchPost}
       />
     </View>
   );

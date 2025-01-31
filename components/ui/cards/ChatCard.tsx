@@ -5,6 +5,8 @@ import { View } from "react-native";
 import ReadMore from "@fawazahmed/react-native-read-more";
 import CustomAvatar from "../CustomAvatar";
 import moment from "moment";
+import { useEffect, useState } from "react";
+import React from "react";
 
 export interface Message {
   id: number;
@@ -17,6 +19,15 @@ export interface Message {
   replies?: Array<Message>;
 }
 export default function ChatCard({ item }: { item: Message }) {
+  const [date, setDate] = useState(moment(item.date).fromNow(true));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDate(moment(item.date).fromNow(true));
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <View style={styles.messageContainer}>
       <View style={[styles.messageRow, item.left && styles.left]}>
@@ -44,7 +55,7 @@ export default function ChatCard({ item }: { item: Message }) {
             {item.text}
           </ReadMore>
           <View style={{ flex: 1, alignItems: "flex-end" }}>
-            <Text style={styles.dateText}>{moment(item.date).fromNow()}</Text>
+            <Text style={styles.dateText}>{date}</Text>
           </View>
 
           {item.replies && (

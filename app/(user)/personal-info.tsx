@@ -128,16 +128,16 @@ export default function UserScreen() {
   const handleImageUpload = async (uri: string) => {
     const fileName = uri.split("/").pop();
     const fileType = `image/${fileName?.split(".").pop()}`;
-    const photo = {
-      uri,
-      name: fileName,
-      type: fileType,
-    };
+    const base64 = await convertImageToBase64(uri);
 
+    const photo = `data:${fileType};base64,${base64}`;
+
+    console.log("photo",photo);
+    
     if (user)
       uploadPhoto(user?.id, {
-        email: user.email,
-        name: user.name
+        ...user,
+        photo,
       });
   };
 

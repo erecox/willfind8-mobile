@@ -13,6 +13,7 @@ import ProfileListItem from "@/components/ui/cards/ProfileListItem";
 import { Thread, useThreadsStore } from "@/hooks/store/useFetchThreads";
 import { EmptyListingCard } from "@/components/ui/cards/EmptyListingCard";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import React from "react";
 
 export default function MessagesScreen() {
   const [index, setIndex] = useState(0);
@@ -185,7 +186,7 @@ export default function MessagesScreen() {
             <TabView.Item style={{ width: "100%" }}>
               <FlatList
                 data={filterThreads("all")}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item?.id?.toString()}
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
                 onEndReached={loadMore}
@@ -198,7 +199,7 @@ export default function MessagesScreen() {
               <FlatList
                 data={filterThreads("unread")}
                 contentContainerStyle={styles.list}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item?.id?.toString()}
                 showsVerticalScrollIndicator={false}
                 renderItem={renderItem}
                 ListEmptyComponent={

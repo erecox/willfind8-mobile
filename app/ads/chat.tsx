@@ -25,6 +25,7 @@ export default function ChatScreen() {
     <View style={{ flex: 1 }}>
       <Stack.Screen options={{ headerTitle: post?.contact_name }} />
       <FeedbackChat
+      
         thread={thread}
         data={messages.map((message) => ({
           id: message.id,

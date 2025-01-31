@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  ActivityIndicator,
+  Alert,
+  TextInput as RNTextInput,
 } from "react-native";
 import { router, Stack } from "expo-router";
 import { useFormik } from "formik";
@@ -23,12 +24,45 @@ import SelectInput from "@/components/inputs/SelectInput";
 import LoadingBar from "@/components/ui/cards/LoadingBar";
 import { useFilterStore } from "@/hooks/store/filterStore";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import usePostStore from "@/hooks/store/useFetchPosts";
 import { useFocusEffect } from "expo-router";
+import React from "react";
+import api from "@/lib/apis/api";
+import usePostStore from "@/hooks/store/useFetchPosts";
+
+// Define types for filters
+interface Filter {
+  id: string;
+  type: string;
+  name: string;
+  options?: { id: number; value: string }[];
+  selectedValue?: { id: number; name: string };
+}
+
+// Define type for advert
+interface Advert {
+  title: string;
+  city_id: number;
+  category_id: number;
+  description: string;
+  price: string;
+  email: string;
+  phone: string;
+  contact_name: string;
+  phone_country: string;
+  auth_field: string;
+  pictures: string[];
+  country_code: string | null;
+  negotiable: boolean;
+  permanent: boolean;
+  accept_terms: boolean;
+  tags: string[];
+  cf: Record<string, any>;
+}
 
 export default function AddScreen() {
   const { refreshUserData, user } = useAuth();
-
+  const [requestLoading, setRequestLoading] = useState(false);
+  const { addToSavedPost } = usePostStore();
   useFocusEffect(
     useCallback(() => {
       refreshUserData();
@@ -43,9 +77,7 @@ export default function AddScreen() {
     setDefaultFilters,
   } = useFilterStore();
 
-  const { addPost, loadingStates } = usePostStore();
-
-  const inputRef = useRef();
+  const inputRef = useRef<RNTextInput>(null);
   const category = defaultFilters.find(
     (filter) => filter.id === "c"
   )?.selectedValue;
@@ -58,15 +90,11 @@ export default function AddScreen() {
     if (category?.id) fetchFilters(category.id);
   }, [category?.id, defaultFilters.length, setDefaultFilters, fetchFilters]);
 
-  useEffect(() => {
-    if (loadingStates.postAdded) router.push("/(user)/mylisting");
-  }, [loadingStates]);
-
   const openCategoryModal = () => router.push("/search/categories_menu");
   const openCityModal = () => router.push("/search/cities_menu");
 
   const buildValidationSchema = () => {
-    const schema = {
+    const schema: Record<string, any> = {
       title: Yup.string().required("Title is required"),
       description: Yup.string().required("Description is required"),
       permanent: Yup.boolean(),
@@ -74,7 +102,7 @@ export default function AddScreen() {
       email: Yup.string().email("Invalid email").required("Email is required"),
       auth_field: Yup.string().required("Auth field is required"),
       phone: Yup.string().required("Phone is required"),
-      contact_name: Yup.string().required(),
+      contact_name: Yup.string().required("Contact name is required"),
       phone_country: Yup.string(),
       accept_terms: Yup.boolean()
         .isTrue("Accept the terms and conditions")
@@ -85,13 +113,20 @@ export default function AddScreen() {
         .of(Yup.string().required("Each item must be a string"))
         .min(1, "At least one image is required")
         .required("This field is required"),
-      cf: Yup.object().shape(
+    };
+
+    if (dynamicFilters.length > 0) {
+      schema.cf = Yup.object().shape(
         dynamicFilters.reduce((acc, filter) => {
-          acc[filter.id] = Yup.number().required(`${filter.name} is required`);
+          if (filter.type !== "checkbox_multiple") {
+            acc[filter.id] = Yup.number().required(
+              `${filter.name} is required`
+            );
+          }
           return acc;
         }, {})
-      ),
-    };
+      );
+    }
 
     return Yup.object(schema);
   };
@@ -103,8 +138,8 @@ export default function AddScreen() {
       category_id: 0,
       description: "",
       price: "",
-      email: user?.email,
-      phone: user?.phone,
+      email: user?.email || "",
+      phone: user?.phone || "",
       contact_name: user?.name || "",
       phone_country: "GH",
       auth_field: "email",
@@ -128,17 +163,59 @@ export default function AddScreen() {
     },
   });
 
-  const handleDynamicFieldChange = (fieldId: number, value: any) => {
+  // Post add
+  const addPost = async (advert: Advert) => {
+    setRequestLoading(true);
+
+    const pics = advert.pictures.map((uri: string) => {
+      const fileName = uri.split("/").pop();
+      const fileType = `image/${fileName?.split(".").pop()}`;
+      return {
+        uri,
+        name: fileName,
+        type: fileType,
+      };
+    });
+
+    try {
+      const response = await api.postForm(`/api/posts`, {
+        ...advert,
+        pictures: undefined,
+        "pictures[]": pics,
+      });
+
+      const { success, message, result } = response.data;
+      if (success) {
+        router.dismiss(1);
+        router.push({ pathname: "/ads/details", params: { id: result.id } });
+      } else {
+        Alert.alert(
+          "Error",
+          message || "Something went wrong. Please try again."
+        );
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error?.message || "An unexpected error occurred.");
+    } finally {
+      setRequestLoading(false);
+    }
+  };
+
+  const handleDynamicFieldChange = (fieldId: string, value: any) => {
     const updatedCf = { ...formik.values.cf, [fieldId]: value };
     formik.setFieldValue("cf", updatedCf);
   };
 
   useEffect(() => {
-    formik.setFieldValue("category_id", category?.id || null);
+    if (category?.id !== formik.values.category_id) {
+      formik.setFieldValue("category_id", category?.id || null);
+    }
   }, [category]);
 
   useEffect(() => {
-    formik.setFieldValue("city_id", city?.id || null);
+    if (city?.id !== formik.values.city_id) {
+      formik.setFieldValue("city_id", city?.id || null);
+    }
   }, [city]);
 
   return (
@@ -151,33 +228,28 @@ export default function AddScreen() {
               <TouchableOpacity
                 activeOpacity={0.55}
                 style={{ paddingVertical: 5 }}
-                disabled={!formik.isValid || loadingStates.addPost}
+                disabled={!formik.isValid || requestLoading}
                 onPress={() => formik.handleSubmit()}
               >
-                {loadingStates.addPost ? (
-                  <ActivityIndicator size={"small"} animating />
-                ) : (
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "600",
-                      color: formik.isValid
-                        ? lightColors.primary
-                        : lightColors.disabled,
-                    }}
-                  >
-                    Submit
-                  </Text>
-                )}
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                    color:
+                      !formik.isValid || requestLoading
+                        ? lightColors.disabled
+                        : lightColors.primary,
+                  }}
+                >
+                  Submit
+                </Text>
               </TouchableOpacity>
             ),
             headerTitleStyle: { fontSize: 16 },
           }}
         />
 
-        <TouchableWithoutFeedback
-          onPress={() => inputRef && inputRef.current.dismissKeyboard()}
-        >
+        <TouchableWithoutFeedback>
           <View style={{ padding: 10, paddingBottom: 50 }}>
             <SelectDialog
               label="City"
@@ -202,7 +274,7 @@ export default function AddScreen() {
               }
             />
             <ImagePickerInput
-              onImagesSelected={(imgs: any) => {
+              onImagesSelected={(imgs: string[]) => {
                 formik.setFieldValue("pictures", imgs, true);
               }}
               errorMessage={formik.touched?.pictures && formik.errors?.pictures}
@@ -218,22 +290,18 @@ export default function AddScreen() {
                   (formik.touched.title && formik.errors.title) || ""
                 }
               />
-              <TouchableWithoutFeedback>
-                <DescriptionInput
-                  inputRef={inputRef}
-                  value={""}
-                  onChange={(value: any) =>
-                    formik.setFieldValue("description", value)
-                  }
-                  errorMessage={
-                    (formik.touched.description && formik.errors.description) ||
-                    ""
-                  }
-                  onBlur={() =>
-                    inputRef.current && inputRef.current?.dismissKeyboard()
-                  }
-                />
-              </TouchableWithoutFeedback>
+              <DescriptionInput
+                inputRef={inputRef}
+                value={formik.values.description}
+                onChange={(value: string) =>
+                  formik.setFieldValue("description", value)
+                }
+                errorMessage={
+                  (formik.touched.description && formik.errors.description) ||
+                  ""
+                }
+                onBlur={() => inputRef.current?.blur()}
+              />
               {dynamicFilters.map((filter) => (
                 <View key={filter.id} style={styles.filterContainer}>
                   <Text style={styles.label}>{filter.name}</Text>
@@ -244,10 +312,12 @@ export default function AddScreen() {
                         handleDynamicFieldChange(filter.id, value)
                       }
                       placeholder={`Select ${filter.name}`}
-                      options={filter.options.map((option) => ({
-                        label: option.value,
-                        value: option.id,
-                      }))}
+                      options={
+                        filter.options?.map((option) => ({
+                          label: option.value,
+                          value: option.id,
+                        })) || []
+                      }
                       errorMessage={formik.errors.cf?.[filter.id]}
                     />
                   )}
@@ -275,7 +345,7 @@ export default function AddScreen() {
                     />
                   )}
                   {filter.type === "radio" &&
-                    filter.options.map((option) => (
+                    filter.options?.map((option) => (
                       <View key={option.id} style={styles.radioContainer}>
                         <Text>{option.value}</Text>
                         <Switch
@@ -287,7 +357,7 @@ export default function AddScreen() {
                       </View>
                     ))}
                   {filter.type === "checkbox_multiple" &&
-                    filter.options.map((option) => (
+                    filter.options?.map((option) => (
                       <CheckBox
                         key={option.id}
                         title={option.value}
@@ -410,7 +480,7 @@ export default function AddScreen() {
       </ScrollView>
       <LoadingBar
         style={{ position: "absolute", top: 0, zIndex: 100 }}
-        loading={loadingStates.addPost || isLoading}
+        loading={requestLoading || isLoading}
       />
     </View>
   );

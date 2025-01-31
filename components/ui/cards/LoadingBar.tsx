@@ -1,4 +1,5 @@
 import { lightColors, LinearProgress } from "@rneui/themed";
+import React from "react";
 import {
   StyleProp,
   StyleSheet,
@@ -32,8 +33,9 @@ export default function LoadingBar({
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    alignItems: "center",
-    justifyContent: "center",
+    width: "100%",
+    height: "100%",
     top: 0,
+    flex: 1,
   },
 });

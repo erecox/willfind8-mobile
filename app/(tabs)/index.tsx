@@ -21,6 +21,7 @@ import { useFilterStore } from "@/hooks/store/filterStore";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useAuthModal } from "@/lib/auth/AuthModelProvider";
 import { useFocusEffect } from "expo-router";
+import React from "react";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -155,7 +156,7 @@ export default function HomeScreen() {
             post={item}
           />
         )}
-        keyExtractor={(item: any) => item.id.toString()}
+        keyExtractor={(item: any) => item?.id?.toString()}
         data={latestPostIds.map((id) => PostsMap[id])}
         onEndReached={loadMorePost}
         onEndReachedThreshold={0.5}

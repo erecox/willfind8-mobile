@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import api from "@/lib/apis/api";
 import { User } from "./useFetchUsers";
+import { mergeById } from "./mergeUtils";
 
 export interface Advert {
   title: string;
@@ -27,10 +28,10 @@ export interface Params {
   op?: "search" | "preminum" | "latest" | "similar";
   postId?: number;
   distance?: number;
-  belongLoggedUser?: 1 | 0 | number;
-  pendingApproval?: number | 1 | 0;
-  archived?: 1 | 0 | number;
-  detailed?: 1 | 0 | number;
+  belongLoggedUser?: 1 | 0;
+  pendingApproval?: 1 | 0;
+  archived?: 1 | 0;
+  detailed?: 1 | 0;
   embed?: string;
   sort?: string | "created_at" | "-created_at";
   perPage?: number;
@@ -76,7 +77,8 @@ export interface Post {
   count_pictures: number;
   user_photo_url: string;
   user: User | null;
-  user_id: number | null;
+  user_id: number;
+  email: string;
   negotiable: number | null;
   savedByLoggedUser?: Array<SavedUser>;
   category: {
@@ -131,8 +133,12 @@ interface PostStore {
   userArchivedPostIds: number[];
   searchSuggestionIds: number[];
   searchResultIds: number[];
-  relatedPostIds: number[];
-  sellerPostIds: number[];
+  sellerPosts: {
+    [sellerId: number]: number[]; // Array of post IDs for each seller
+  };
+  relatedPosts: {
+    [postId: number]: number[]; // Array of related post IDs for each post
+  };
   postDetailsId: number | null;
   pagination: {
     latest: { page: number; hasMore: boolean };
@@ -167,7 +173,6 @@ interface PostStore {
     fetchRelated: boolean;
     fetchSeller: boolean;
     fetchPost: boolean;
-    addPost: boolean;
     deletePost: boolean;
     postAdded: boolean;
     updatePost: boolean;
@@ -186,18 +191,21 @@ interface PostStore {
   fetchSearchSuggestions: (params?: Params) => Promise<void>;
   fetchSearchResults: (params: Params) => Promise<void>;
   resetSearchResults: () => void;
-  resetSellerPosts: () => void;
+  resetSellerPosts: (sellerId: number) => void;
+  resetRelatedPosts: (postId: number) => void;
   resetLatestPosts: () => void;
   resetSavedPosts: () => void;
   fetchRelatedPosts: (postId: number, params?: Params) => Promise<void>;
   fetchSellerPosts: (sellerId: number, params?: Params) => Promise<void>;
   fetchPost: (postId: number, params?: Params) => Promise<void>;
   addToSavedPost: (postId: number, user: User) => Promise<void>;
-  addPost: (advert: Advert) => Promise<void>;
   deletePosts: (postIds: number[]) => Promise<void>;
   updatePost: (advert: Advert) => Promise<void>;
   archivePost: (postId: number) => Promise<void>;
+  clearError: () => void;
+  setState: (state: PostStore) => void;
 }
+
 const usePostStore = create<
   PostStore & {
     abortController: AbortController | null;
@@ -213,8 +221,8 @@ const usePostStore = create<
   userArchivedPostIds: [],
   searchSuggestionIds: [],
   searchResultIds: [],
-  relatedPostIds: [],
-  sellerPostIds: [],
+  sellerPosts: {},
+  relatedPosts: {},
   postDetailsId: null,
   pagination: {
     latest: { page: 1, hasMore: true },
@@ -364,6 +372,7 @@ const usePostStore = create<
           embed: "user,category,city,savedByLoggedUser,pictures",
           belongLoggedUser: 1,
           detailed: 1,
+          sort: "-reated_at",
           perPage: 10,
           page,
           ...params,
@@ -431,6 +440,7 @@ const usePostStore = create<
           pendingApproval: 1,
           detailed: 1,
           perPage: 10,
+          sort: "created_at",
           page,
           ...params,
         },
@@ -506,6 +516,7 @@ const usePostStore = create<
           embed: "user,category,city,savedByLoggedUser,pictures",
           belongLoggedUser: 1,
           detailed: 1,
+          sort: "created_at",
           perPage: 10,
           page,
           archived: 1,
@@ -654,7 +665,7 @@ const usePostStore = create<
 
     try {
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
-        params: { op: "search", ...params },
+        params: { op: "suggestion", ...params },
       });
 
       const { success, message, extra, result } = response.data;
@@ -692,10 +703,16 @@ const usePostStore = create<
     });
 
     try {
+      const { pagination } = get();
+      const { page, hasMore } = pagination.search;
+
+      if (!hasMore) return;
+
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
         params: {
           op: "search",
-          embed: "user,category,city,savedByLoggedUser,pictures",
+          embed: "category,city,savedByLoggedUser",
+          page,
           ...params,
         },
       });
@@ -703,7 +720,7 @@ const usePostStore = create<
       const { success, extra, message, result } = response.data;
 
       if (success) {
-        const { data: newPosts } = result;
+        const { data: newPosts, meta } = result;
         get().processFetchedPosts(newPosts);
 
         set((state) => ({
@@ -713,6 +730,13 @@ const usePostStore = create<
               ...newPosts.map((post) => post.id),
             ])
           ),
+          pagination: meta && {
+            ...state.pagination,
+            search: {
+              page: meta.current_page + 1,
+              hasMore: meta.current_page < meta.last_page,
+            },
+          },
           extras: { ...state.extras, search: extra },
           loadingStates: { ...state.loadingStates, fetchResults: false },
         }));
@@ -730,53 +754,6 @@ const usePostStore = create<
     }
   },
 
-  // Fetch related posts
-  fetchRelatedPosts: async (postId: number, params?: Params) => {
-    set({
-      loadingStates: { ...get().loadingStates, fetchRelated: true },
-      error: null,
-    });
-
-    try {
-      const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
-        params: {
-          op: "similar",
-          embed: "user,category,city,savedByLoggedUser,pictures",
-          postId,
-          ...params,
-        },
-      });
-
-      const { success, extra, message, result } = response.data;
-
-      if (success) {
-        const { data: newPosts } = result;
-        get().processFetchedPosts(newPosts);
-
-        set((state) => ({
-          relatedPostIds: Array.from(
-            new Set([
-              ...state.relatedPostIds,
-              ...newPosts.map((post) => post.id),
-            ])
-          ),
-          extras: { ...state.extras, search: extra },
-          loadingStates: { ...state.loadingStates, fetchRelated: false },
-        }));
-      } else {
-        set({
-          error: message || "Failed to fetch related posts",
-          loadingStates: { ...get().loadingStates, fetchRelated: false },
-        });
-      }
-    } catch (error: any) {
-      set({
-        error: error.message || "Something went wrong",
-        loadingStates: { ...get().loadingStates, fetchRelated: false },
-      });
-    }
-  },
-
   // Fetch seller posts
   fetchSellerPosts: async (sellerId: number, params?: Params) => {
     set({
@@ -785,10 +762,14 @@ const usePostStore = create<
     });
 
     try {
+      const { pagination } = get();
+      const { page } = pagination.seller;
+
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
         params: {
           op: "search",
           embed: "user,category,city,savedByLoggedUser,pictures",
+          page,
           userId: sellerId,
           ...params,
         },
@@ -798,18 +779,21 @@ const usePostStore = create<
 
       if (success) {
         const { data: newPosts, meta } = result;
+
         get().processFetchedPosts(newPosts);
 
+        // Track postIds by sellerId
         set((state) => ({
-          sellerPostIds: Array.from(
-            new Set([
-              ...state.sellerPostIds,
-              ...newPosts.map((post) => post.id),
-            ])
-          ),
+          sellerPosts: {
+            ...state.sellerPosts,
+            [sellerId]: mergeById(
+              state.sellerPosts[sellerId] || [],
+              newPosts.map((post) => post.id)
+            ),
+          },
           pagination: meta && {
             ...state.pagination,
-            saved: {
+            seller: {
               page: meta.current_page + 1,
               hasMore: meta.current_page < meta.last_page,
             },
@@ -831,6 +815,65 @@ const usePostStore = create<
     }
   },
 
+  // Fetch related posts by postId
+  fetchRelatedPosts: async (postId: number, params?: Params) => {
+    set({
+      loadingStates: { ...get().loadingStates, fetchRelated: true },
+      error: null,
+    });
+
+    try {
+      const { pagination } = get();
+      const { page } = pagination.related;
+
+      const response = await api.get<ApiResponse<Post[]>>(`/api/posts`, {
+        params: {
+          op: "similar",
+          embed: "user,category,city,savedByLoggedUser,pictures",
+          postId,
+          page,
+          ...params,
+        },
+      });
+
+      const { success, message, result } = response.data;
+
+      if (success) {
+        const { data: relatedPosts, meta } = result;
+
+        get().processFetchedPosts(relatedPosts);
+
+        // Track related postIds by postId
+        set((state) => ({
+          relatedPosts: {
+            ...state.relatedPosts,
+            [postId]: mergeById(
+              state.relatedPosts[postId] || [],
+              relatedPosts.map((post) => post.id)
+            ),
+          },
+          pagination: meta && {
+            ...state.pagination,
+            related: {
+              page: meta.current_page + 1,
+              hasMore: meta.current_page < meta.last_page,
+            },
+          },
+          loadingStates: { ...state.loadingStates, fetchRelated: false },
+        }));
+      } else {
+        set({
+          error: message || "Failed to fetch related posts",
+          loadingStates: { ...get().loadingStates, fetchRelated: false },
+        });
+      }
+    } catch (error: any) {
+      set({
+        error: error.message || "Something went wrong",
+        loadingStates: { ...get().loadingStates, fetchRelated: false },
+      });
+    }
+  },
   // Fetch post details with `extra` responses
   fetchPost: async (postId: number, params?: Params) => {
     set({
@@ -870,69 +913,6 @@ const usePostStore = create<
       });
     }
   },
-
-  // Post add
-  addPost: async (advert: Advert) => {
-    const pics = advert.pictures.map((uri: string) => {
-      const fileName = uri.split("/").pop();
-      const fileType = `image/${fileName?.split(".").pop()}`;
-      return {
-        uri,
-        name: fileName,
-        type: fileType,
-      };
-    });
-
-    set({
-      loadingStates: { ...get().loadingStates, addPost: true },
-      error: null,
-    });
-
-    try {
-      const response = await api.postForm(`/api/posts`, {
-        ...advert,
-        pictures: undefined,
-        "pictures[]": pics,
-      });
-
-      const { success, extra, message, result } = response.data;
-
-      if (success) {
-        const post: Post = { ...result, pictures: extra.pictures };
-
-        set((state) => ({
-          items: {
-            ...state.items,
-            [post.id]: post,
-          },
-          userPostIds: [...state.userPostIds, post.id],
-          loadingStates: {
-            ...state.loadingStates,
-            addPost: false,
-            postAdded: true,
-          },
-        }));
-      } else {
-        set({
-          error: message || "Failed to fetch post",
-          loadingStates: {
-            ...get().loadingStates,
-            addPost: false,
-            postAdded: true,
-          },
-        });
-      }
-    } catch (error: any) {
-      set({
-        error: error.message || "Something went wrong",
-        loadingStates: {
-          ...get().loadingStates,
-          addPost: false,
-          postAdded: true,
-        },
-      });
-    }
-  },
   // Post delete
   deletePosts: async (postIds: number[]) => {
     set({
@@ -946,13 +926,21 @@ const usePostStore = create<
       const { success, message } = response.data;
 
       if (success) {
-        const { items: newItems } = get();
+        const { items: newItems, latestPostIds, savedPostIds } = get();
 
         for (const key of postIds) {
           delete newItems[key];
         }
+        const newLatestPostIds = latestPostIds.filter(
+          (id: any) => !postIds.includes(id)
+        );
+        const newSavedPostIds = savedPostIds.filter(
+          (id: any) => !postIds.includes(id)
+        );
 
         set((state) => ({
+          latestPostIds: newLatestPostIds,
+          savedPostIds: newSavedPostIds,
           items: newItems,
           userPostIds: state.userPostIds.filter((id) => !postIds.includes(id)),
           loadingStates: {
@@ -1166,8 +1154,36 @@ const usePostStore = create<
     set({ searchResultIds: [] });
   },
   // Rest seller posts
-  resetSellerPosts: () => {
-    set({ sellerPostIds: [] });
+  resetSellerPosts: (sellerId) => {
+    set((state) => ({
+      sellerPosts: {
+        ...state.sellerPosts,
+        [sellerId]: [],
+      },
+      pagination: {
+        ...state.pagination,
+        seller: {
+          page: 1,
+          hasMore: true,
+        },
+      },
+    }));
+  },
+  // Rest related posts
+  resetRelatedPosts: (postId) => {
+    set((state) => ({
+      relatedPosts: {
+        ...state.relatedPosts,
+        [postId]: [],
+      },
+      pagination: {
+        ...state.pagination,
+        related: {
+          page: 1,
+          hasMore: true,
+        },
+      },
+    }));
   },
   resetLatestPosts: () => {
     set((state) => ({
@@ -1177,12 +1193,29 @@ const usePostStore = create<
         latest: {
           ...state.pagination.latest,
           hasMore: true,
+          page: 1,
         },
       },
     }));
   },
   resetSavedPosts: () => {
-    set({ savedPostIds: [] });
+    set((state) => ({
+      savedPostIds: [],
+      pagination: {
+        ...state.pagination,
+        saved: {
+          ...state.pagination.saved,
+          hasMore: true,
+          page: 1,
+        },
+      },
+    }));
+  },
+  clearError: () => {
+    set({ error: null });
+  },
+  setState: (state: any) => {
+    set(state);
   },
 }));
 

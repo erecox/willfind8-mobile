@@ -1,6 +1,6 @@
-import { lightColors, Tab, TabView, Text } from "@rneui/themed";
+import { lightColors, Tab, TabView } from "@rneui/themed";
 import { router, Tabs } from "expo-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   StyleSheet,
   TextInputChangeEventData,
-  TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -17,6 +16,8 @@ import PostCardLandscape from "@/components/ui/cards/PostCardLandscape";
 import { useAuthModal } from "@/lib/auth/AuthModelProvider";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import LoadingBar from "@/components/ui/cards/LoadingBar";
+import React from "react";
+import { EmptyListingCard } from "@/components/ui/cards/EmptyListingCard";
 
 interface Refreshing {
   all: boolean;
@@ -133,21 +134,21 @@ export default function MessagesScreen() {
         if (!loadingStates.fetchUserArchivedPost) {
           setRefreshing({ ...refreshing, archived: true });
           fetchLoggedInUserArchivedPosts({ page: 1 }).finally(() =>
-            setRefreshing({ ...refreshing, archived: true })
+            setRefreshing({ ...refreshing, archived: false })
           );
         }
       case "pending":
         if (!loadingStates.fetchUserPendingPost) {
           setRefreshing({ ...refreshing, pending: true });
           fetchLoggedInUserPendingPosts({ page: 1 }).finally(() =>
-            setRefreshing({ ...refreshing, pending: true })
+            setRefreshing({ ...refreshing, pending: false })
           );
         }
       default:
         if (!loadingStates.fetchUserPost) {
           setRefreshing({ ...refreshing, all: true });
           fetchLoggedInUserPosts({ page: 1 }).finally(() =>
-            setRefreshing({ ...refreshing, all: true })
+            setRefreshing({ ...refreshing, all: false })
           );
         }
         break;
@@ -204,7 +205,7 @@ export default function MessagesScreen() {
           onRefresh={() => refresh("all")}
         />
       ) : (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
           <Tab
             value={index}
             onChange={(e) => setIndex(e)}
@@ -230,16 +231,16 @@ export default function MessagesScreen() {
           </Tab>
 
           <TabView value={index} onChange={setIndex} animationType="spring">
-            <TabView.Item style={{ width: "100%", height: height }}>
+            <TabView.Item style={styles.tabView}>
               <FlatList
                 data={filterPosts()}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item?.id?.toString()}
                 renderItem={renderItem}
-                contentContainerStyle={styles.list}
+                style={styles.list}
                 onEndReached={loadMore}
                 onEndReachedThreshold={0.5}
                 ListEmptyComponent={
-                  <Text style={styles.noResultsText}>No active items</Text>
+                  <EmptyListingCard placeholder="No active items" />
                 }
                 ListFooterComponent={renderFooter}
                 refreshing={refreshing.all}
@@ -247,15 +248,15 @@ export default function MessagesScreen() {
               />
             </TabView.Item>
 
-            <TabView.Item style={{ width: "100%" }}>
+            <TabView.Item style={styles.tabView}>
               <FlatList
                 data={pendingPosts}
-                contentContainerStyle={styles.list}
-                keyExtractor={(item) => item.id.toString()}
+                style={styles.list}
+                keyExtractor={(item) => item?.id?.toString()}
                 showsVerticalScrollIndicator={false}
                 renderItem={renderItem}
                 ListEmptyComponent={
-                  <Text style={styles.noResultsText}>No pending items</Text>
+                  <EmptyListingCard placeholder="No pending items" />
                 }
                 ListFooterComponent={renderFooter2}
                 onEndReached={loadPendigMore}
@@ -265,15 +266,15 @@ export default function MessagesScreen() {
               />
             </TabView.Item>
 
-            <TabView.Item style={{ width: "100%" }}>
+            <TabView.Item style={styles.tabView}>
               <FlatList
                 data={archivedPosts}
-                contentContainerStyle={styles.list}
-                keyExtractor={(item) => item.id.toString()}
+                style={styles.list}
+                keyExtractor={(item) => item?.id?.toString()}
                 showsVerticalScrollIndicator={false}
                 renderItem={renderItem}
                 ListEmptyComponent={
-                  <Text style={styles.noResultsText}>No archived items</Text>
+                  <EmptyListingCard placeholder="No archived items" />
                 }
                 ListFooterComponent={renderFooter3}
                 onEndReached={loadArchivedMore}
@@ -302,13 +303,13 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
   },
+  tabView: {
+    width: "100%",
+  },
   resultText: {
     fontSize: 16,
   },
-  noResultsText: {
-    flex: 1,
-    textAlign: "center",
+  noResults: {
     marginTop: 20,
-    color: "#888",
   },
 });

@@ -134,7 +134,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       const { success, message, result } = responseData;
       if (!success) {
-        console.error(message);
+        console.error(message||"refreshUserData: No message");
       } else {
         const updatedUser: UserData = result;
         setUser(updatedUser);

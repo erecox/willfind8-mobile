@@ -13,9 +13,9 @@ import { lightColors, SearchBar } from "@rneui/themed";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { EmptyListingCard } from "./cards/EmptyListingCard";
-import usePostStore from "@/hooks/store/useFetchPosts"; // Zustand store import
 import { StyleProp } from "react-native";
 import { useFilterStore } from "@/hooks/store/filterStore";
+import api from "@/lib/apis/api";
 
 interface Category {
   id: number;
@@ -39,7 +39,6 @@ interface Suggestion {
 const SearchList = ({
   ref,
   style,
-  params,
   autoFocus,
   onPress,
   onFilter,
@@ -48,20 +47,6 @@ const SearchList = ({
 }: {
   ref?: any;
   style?: StyleProp<ViewStyle>;
-  params?: {
-    page?: number;
-    op?: "search" | "preminum" | "latest" | "similar";
-    postId?: number;
-    distance?: number;
-    belongLoggedUser?: boolean;
-    pendingApproval?: boolean;
-    archived?: boolean;
-    embed?: string;
-    sort?: string | "created_at" | "-created_at";
-    perPage?: number;
-    c?: number;
-    cf?: Map<number, number>;
-  };
   autoFocus?: boolean;
   onPress?: (query: string, suggestion?: Suggestion) => void;
   onFilter?: (e: GestureResponderEvent) => void;
@@ -70,60 +55,54 @@ const SearchList = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>(initialValue || "");
   const [focused, setFocused] = useState<boolean>(false);
-  const [hideResults, setHideResults] = useState(true);
-  // Zustand store usage
-  const {
-    loadingStates,
-    error,
-    items,
-    searchSuggestionIds,
-    abortRequests,
-    fetchSearchSuggestions,
-  } = usePostStore();
-  const { defaultFilters, setDefaultFilters } = useFilterStore();
+  const [showLoading, setShowLoading] = useState<boolean>(false);
+  const [result, setResult] = useState<Suggestion[]>([]);
 
+  const { defaultFilters, setDefaultFilters } = useFilterStore();
   const category = defaultFilters.find(
     (filter) => filter.id === "c"
   )?.selectedValue;
+
   useEffect(() => {
     if (defaultFilters.length === 0) setDefaultFilters();
   }, [setDefaultFilters]);
 
-  const initialResults = searchSuggestionIds.map((id) => items[id]);
-  const results = useRef(initialResults);
-
-  useEffect(() => {
-    if (searchQuery.length > 1) {
-      fetchSearchSuggestions({
-        ...params,
-        q: searchQuery,
-        perPage: 10,
-        op: "search",
-        c: category?.id,
-      });
-    } else {
-      // Optionally handle case when query is empty or too short
-      abortRequests();
-    }
-  }, [searchQuery, initialValue, params]);
-
-  useEffect(() => {
-    if (searchQuery.length > 1) {
-      results.current = initialResults.filter((post) =>
-        post.title.toLowerCase().search(searchQuery.toLowerCase())
-      );
-    } else {
-      // Optionally handle case when query is empty or too short
-      results.current = [];
-    }
-  }, [searchQuery, params, initialValue, initialResults]);
+  let abortController: any = null;
 
   const handleSearch = (text: string) => {
+    if (abortController) abortController.abort("New request started");
+
+    abortController = new AbortController();
+
+    setShowLoading(true);
     setSearchQuery(text);
+    if (text.length === 0) {
+      setResult([]);
+      return;
+    }
+
+    api
+      .get("/api/posts", {
+        params: {
+          op: "suggestion",
+          embed: "category,city",
+          q: text,
+          sc: category?.id,
+        },
+        signal: abortController.signal,
+      })
+      .then((respoense) => {
+        const { success, extra, message, result } = respoense.data;
+        if (success) setResult(result.data);
+      })
+      .catch((response) => {
+        console.log("error1", response);
+      })
+      .finally(() => setShowLoading(false));
   };
 
-  const highlightText = (text: string, query: string): JSX.Element[] => {
-    if (!query) return [<Text key="no-highlight">{text}</Text>];
+  const highlightText = (text: string, query: string) => {
+    if (!query) return <Text key="no-highlight">{text}</Text>;
     const parts = text.split(new RegExp(`(${query})`, "gi"));
     return parts.map((part, index) =>
       part.toLowerCase() === query.toLowerCase() ? (
@@ -140,7 +119,6 @@ const SearchList = ({
     return (
       <TouchableOpacity
         onPress={() => {
-          abortRequests();
           setSearchQuery(item.title);
           if (onPress) onPress(item.title, item);
         }}
@@ -162,7 +140,6 @@ const SearchList = ({
           <TouchableOpacity
             style={styles.btn}
             onPress={() => {
-              results.current = [];
               router.back();
             }}
           >
@@ -175,7 +152,7 @@ const SearchList = ({
           value={searchQuery}
           onChangeText={handleSearch}
           platform={Platform.OS === "ios" ? "ios" : "android"}
-          showLoading={loadingStates.fetchSuggestions}
+          showLoading={showLoading}
           containerStyle={styles.searchContainer}
           inputContainerStyle={styles.inputContainer}
           autoFocus={autoFocus}
@@ -194,10 +171,10 @@ const SearchList = ({
         )}
       </View>
 
-      {results.current.length > 0 ? (
+      {result.length > 0 ? (
         <FlatList<any>
           style={styles.list}
-          data={results.current}
+          data={result}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderSuggestion}
           showsVerticalScrollIndicator={false}

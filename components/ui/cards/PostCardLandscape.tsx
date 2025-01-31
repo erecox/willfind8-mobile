@@ -8,13 +8,7 @@ import {
   DimensionValue,
   Linking,
 } from "react-native";
-import {
-  Card,
-  Text,
-  Icon,
-  ButtonGroup,
-  lightColors,
-} from "@rneui/themed";
+import { Card, Text, Icon, ButtonGroup, lightColors } from "@rneui/themed";
 import { Image } from "expo-image";
 import { CountLabel } from "./CountLabel";
 import SavedButton from "./SavedButton";
@@ -54,9 +48,9 @@ const PostCardLandscape = ({
   const handleButtons = async (index: number) => {
     if (!isAuthenticated) return showLoginModal();
     if (index === 0) {
-      await Linking.openURL(`tel:${post.phone}`);
+      await Linking.openURL(`tel:${post?.phone}`);
     } else if (index === 1) {
-      router.push({ pathname: "/ads/chat", params: { postId: post.id } });
+      router.push({ pathname: "/ads/chat", params: { postId: post?.id } });
     }
   };
 
@@ -93,21 +87,26 @@ const PostCardLandscape = ({
   return (
     <TouchableOpacity activeOpacity={0.75} style={style} onPress={onPress}>
       <Card
-        wrapperStyle={{ flexDirection: "row" }}
+        wrapperStyle={{
+          flexDirection: "row",
+          padding: 0,
+          paddingStart: 0,
+          paddingEnd: 0,
+        }}
         containerStyle={[styles.card, { width: size }]}
       >
         {/* Post Image */}
         <Image
           style={[styles.image, { width: "40%" }]}
           contentFit="cover"
-          source={post.picture.url.medium}
+          source={post?.picture?.url?.medium}
           cachePolicy={"memory"}
           placeholder={placeholder}
           placeholderContentFit="contain"
         />
         {/* Count Label */}
         <CountLabel
-          total={post.count_pictures}
+          total={post?.count_pictures}
           style={styles.countLabel}
           variant={"dark"}
         />
@@ -122,25 +121,25 @@ const PostCardLandscape = ({
               }}
             >
               <Text numberOfLines={2} style={styles.title}>
-                {post.title}
+                {post?.title}
               </Text>
               {showMenu && (
                 <Icon name="more-horiz" size={28} onPress={openMenu} />
               )}
             </View>
             <View style={styles.priceSection}>
-              <Text style={styles.price_formatted}>{post.price_formatted}</Text>
+              <Text style={styles.price_formatted}>{post?.price_formatted}</Text>
 
               {hideSave ? (
                 <DeleteButton
-                  onPress={() => deleteSaved && deleteSaved(post.id)}
+                  onPress={() => deleteSaved && deleteSaved(post?.id)}
                 />
               ) : (
                 <SavedButton
                   active={
                     !!user &&
-                    post.savedByLoggedUser &&
-                    !!post.savedByLoggedUser.find(
+                    post?.savedByLoggedUser &&
+                    !!post?.savedByLoggedUser.find(
                       (save) => save.user_id == user.id
                     )
                   }
@@ -155,7 +154,7 @@ const PostCardLandscape = ({
                 color="#888"
                 size={12}
               />
-              <Text style={styles.location}>{post.city?.name}</Text>
+              <Text style={styles.location}>{post?.city?.name}</Text>
             </View>
           </View>
           <ButtonGroup
@@ -182,22 +181,7 @@ const PostCardLandscape = ({
   );
 };
 
-const arePropsEqual = (prevProps: any, nextProps: any) => {
-  // Perform a shallow comparison on props for memoization
-  return (
-    prevProps.post.id === nextProps.post.id &&
-    prevProps.post.title === nextProps.post.title &&
-    prevProps.post.count_pictures === nextProps.post.count_pictures &&
-    prevProps.post.price_formatted === nextProps.post.price_formatted &&
-    prevProps.post.city?.id === nextProps.post.city?.id &&
-    prevProps.post.picture?.url?.medium ===
-      nextProps.post.picture?.url?.medium &&
-    prevProps.post.savedByLoggedUser?.length ===
-      nextProps.post.savedByLoggedUser?.length
-  );
-};
-
-export default memo(PostCardLandscape, arePropsEqual);
+export default memo(PostCardLandscape);
 
 const styles = StyleSheet.create({
   card: {

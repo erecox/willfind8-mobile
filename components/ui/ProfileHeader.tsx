@@ -48,9 +48,9 @@ const ProfileHeader = ({
         containerStyle={styles.avatar}
       />
       <View style={{ marginTop: 10 }}>
-        <Text h4>{name || "John Doe"}</Text>
+        <Text h4>{name || ""}</Text>
         <Text selectable style={{ color: lightColors.grey1 }}>
-          {email || "john.doe@example.com"}
+          {email || ""}
         </Text>
         {location && (
           <Text style={{ fontSize: 12 }}>

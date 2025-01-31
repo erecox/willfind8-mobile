@@ -182,7 +182,7 @@ export const useFetchAuth = () => {
         `/api/users/${userId}`,
         data
       ); // Use api instance
-      const { success, message, result, extra } = responseData;
+      const { success, message, result } = responseData;
 
       if (!success) {
         setUploadError(message); // If the request failed, set the error message

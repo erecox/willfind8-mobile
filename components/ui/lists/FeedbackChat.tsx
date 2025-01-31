@@ -9,10 +9,11 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons"; // Icons for like button
 import { lightColors } from "@rneui/base";
-import { Text } from "@rneui/themed";
+import { Button, Text } from "@rneui/themed";
 import ChatCard, { Message } from "@/components/ui/cards/ChatCard";
 import TextInput from "@/components/inputs/TextInput";
 import { Thread } from "@/hooks/store/useFetchThreads";
+import { useAuth } from "@/lib/auth/AuthProvider";
 
 const FeedbackChat = ({
   data,
@@ -23,13 +24,42 @@ const FeedbackChat = ({
   data: Array<Message>;
   thread?: Thread;
 }) => {
+  const { user } = useAuth();
   const [message, setMessage] = useState("");
-  const sendMessage = () => {
+  const [result, setResult] = useState<Array<Message>>(data);
+  const sendMessage = (text: string) => {
+    if (!text) return;
+
     if (thread) {
       // add message to thread
+      // start an new thread
+      const last = result[result.length - 1];
+
+      setResult([
+        ...result,
+        {
+          id: (last ? last.id : 0) + 1,
+          text,
+          sender: user?.name,
+          date: new Date().toISOString(),
+        },
+      ]);
     } else {
       // start an new thread
+      const last = result[result.length - 1];
+
+      setResult([
+        {
+          id: (last ? last.id : 0) + 1,
+          text,
+          sender: user?.name,
+          date: new Date().toISOString(),
+        },
+        ...result,
+      ]);
     }
+    setMessage("");
+    Keyboard.dismiss();
   };
   const renderMessage = ({ item }: { item: any }) => <ChatCard item={item} />;
 
@@ -57,7 +87,7 @@ const FeedbackChat = ({
             </View>
           )
         }
-        data={data}
+        data={result}
         renderItem={renderMessage}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
@@ -72,12 +102,14 @@ const FeedbackChat = ({
           multiline
           containerStyle={{ height: "auto" }}
           inputContainer={{ height: "auto", maxHeight: 100 }}
-          rightIcon={{
-            name: "send",
-            size: 34,
-            color: lightColors.primary,
-            onPress: sendMessage,
-          }}
+          rightIcon={
+            <Button
+              icon={{ name: "send", color: lightColors.primary }}
+              size={"sm"}
+              color={lightColors.white}
+              onPress={() => sendMessage(message)}
+            />
+          }
         />
       </KeyboardAvoidingView>
     </View>

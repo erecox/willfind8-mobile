@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PostCardLandscape from "@/components/ui/cards/PostCardLandscape";
 import ProfileHeader from "@/components/ui/ProfileHeader";
 import usePostStore from "@/hooks/store/useFetchPosts";
@@ -12,40 +12,49 @@ import { useAuthModal } from "@/lib/auth/AuthModelProvider";
 
 export default function SellerScreen() {
   const route = useRouteInfo();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { showLoginModal } = useAuthModal();
   const postId = parseInt(route.params?.id?.toString());
   const {
     items,
     error,
-    sellerPostIds,
+    clearError,
+    sellerPosts,
     loadingStates,
+    pagination,
     fetchSellerPosts,
-    resetSellerPosts,
     addToSavedPost,
   } = usePostStore();
 
-  const posts = sellerPostIds.map((id) => items[id]);
   const post = items[postId];
+  const posts = sellerPosts[post?.user_id]?.map((id) => items[id]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleToggleSaved = (postId: number) => {
-    if (isAuthenticated) addToSavedPost(postId, user);
+    if (user) addToSavedPost(postId, user);
     else showLoginModal();
   };
 
-  useEffect(() => {
-    resetSellerPosts();
-  }, [route, resetSellerPosts]);
-
   const loadMore = () => {
+    clearError();
+    if (pagination.seller.hasMore && !loadingStates.fetchSeller)
+      fetchSellerPosts(post.user_id || 0, {
+        sort: "created_at",
+        op: "latest",
+        perPage: 10,
+      });
+  };
+
+  const handleRefresh = () => {
     fetchSellerPosts(post.user_id || 0, {
       sort: "created_at",
       op: "latest",
+      page: 1,
       perPage: 10,
-    });
+    }).finally(() => setRefreshing(false));
   };
 
-  if (!post.user)
+  if (!post?.user)
     return (
       <View style={{ flex: 1 }}>
         <LoadingBar />
@@ -55,17 +64,17 @@ export default function SellerScreen() {
   return (
     <View style={{ flex: 1 }}>
       <Stack.Screen
-        options={{ headerTitle: post.user.name, headerShown: true }}
+        options={{ headerTitle: post.contact_name, headerShown: true }}
       />
       <FlatList
         ListHeaderComponent={
           <ProfileHeader
             style={{ backgroundColor: lightColors.white, marginBottom: 10 }}
-            name={post.user.name}
-            email={post.user.email || ""}
+            name={post.contact_name}
+            email={post.email || ""}
             avatarUrl={post.user.photo_url}
             joined={post.user.created_at_formatted}
-            location={post.city.name}
+            location={`${post.city.name}`}
             phone={post.phone}
           />
         }
@@ -104,6 +113,8 @@ export default function SellerScreen() {
             </View>
           ) : null
         }
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
         initialNumToRender={10}
         removeClippedSubviews
       />

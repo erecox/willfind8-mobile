@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { Ionicons } from "@expo/vector-icons";
 import { Button, Text } from "@rneui/themed";
 import { router, Tabs, useFocusEffect } from "expo-router";
+import React from "react";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -114,7 +115,7 @@ export default function SavedScreen() {
             hideSave
           />
         )}
-        keyExtractor={(item: any) => item.id.toString()}
+        keyExtractor={(item: any) => item?.id?.toString()}
         onEndReached={loadMorePost}
         onEndReachedThreshold={0.5}
         refreshing={refreshing}

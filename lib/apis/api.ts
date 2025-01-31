@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_BASE_URL,
   headers: {
-    'x-appapitoken': process.env.EXPO_PUBLIC_APP_API_KEY,
+    "x-appapitoken": process.env.EXPO_PUBLIC_APP_API_KEY,
   },
 });
 
@@ -12,10 +12,11 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     // Try to retrieve the auth token from AsyncStorage
-    const authToken = await SecureStore.getItemAsync('authToken');
+    const authToken = await SecureStore.getItemAsync("authToken");
+    
     // If token exists, add it as a Bearer token to the request headers
     if (authToken) {
-      config.headers['Authorization'] = `Bearer ${authToken}`;
+      config.headers["Authorization"] = `Bearer ${authToken}`;
     }
 
     return config;

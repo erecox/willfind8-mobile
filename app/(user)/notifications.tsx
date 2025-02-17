@@ -5,8 +5,9 @@ import {
   useNotificationStore,
 } from "@/hooks/store/useFetchNotifications";
 import api from "@/lib/apis/api";
-import { Text } from "@rneui/themed";
-import { Stack } from "expo-router";
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { Button, Icon, Text } from "@rneui/themed";
+import { router, Stack } from "expo-router";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -28,6 +29,7 @@ const Notifications = () => {
     fetchLatestNotifications,
     fetchMoreNotifications,
     loadingStates,
+    deleteAllNotifications,
     setState,
     hasMore,
     items,
@@ -53,7 +55,56 @@ const Notifications = () => {
     );
   };
 
-  const handleItemPress = async (notif: Notification) => {
+  const { showActionSheetWithOptions } = useActionSheet();
+  const openMenu = () => {
+    const options = ["Mark All as Read", "Clear All", "Cancel"];
+    const destructiveButtonIndex = 1;
+    const cancelButtonIndex = 2;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        destructiveButtonIndex,
+      },
+      (selectedIndex: any) => {
+        switch (selectedIndex) {
+          case 0:
+            handleMarkAllAsRead();
+            break;
+
+          case destructiveButtonIndex:
+            if (!loadingStates.fetchLatest) deleteAllNotifications();
+            break;
+
+          case cancelButtonIndex:
+          // Canceled
+        }
+      }
+    );
+  };
+  const handleMarkAllAsRead = () => {
+    const oldItems = items;
+    const newItems = items.map((item) => ({ ...item, status: "read" }));
+    setState({ items: newItems });
+    api
+      .get(`/api/expo/notifications/markAllAsRead`)
+      .then((response) => {
+        const { success, message } = response.data;
+        if (success) {
+          const newItems = items.map((item) => ({ ...item, status: "read" }));
+          setState({ items: newItems });
+        } else {
+          setState({ items: oldItems });
+        }
+      })
+      .catch((reason) => {
+        console.error(reason);
+        setState({ items: oldItems });
+      });
+  };
+
+  const handleItemPress = (notif: Notification) => {
     const indexItem = items.findIndex((item) => item.id == notif.id);
 
     if (notif.status === "delivered") {
@@ -73,7 +124,13 @@ const Notifications = () => {
           items[indexItem].status = "delivered";
           setState({ items });
         });
-    } else {
+    }
+
+    if (notif.data?.post) {
+      router.push({
+        pathname: "/ads/details",
+        params: { id: notif.data?.post?.id },
+      });
     }
   };
 
@@ -85,6 +142,7 @@ const Notifications = () => {
         imageUrl={
           item.data?.post ? item.data.post?.user_photo_url : placeholder
         }
+        postThumbnail={item.data?.post ? item.data.post.picture.url : null}
         isRead={item.status === "read"}
         titleStyle2={{ color: "black" }}
         onPress={() => handleItemPress(item)}
@@ -100,6 +158,7 @@ const Notifications = () => {
             placeholder: "Search message",
             onChangeText: handleSearch,
           },
+          headerRight: () => <Icon onPress={openMenu} name="more-vert" />,
         }}
       />
       {searchText ? (

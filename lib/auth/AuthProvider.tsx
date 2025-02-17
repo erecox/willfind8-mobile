@@ -115,8 +115,11 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Handle logout by clearing user data and token
   const logout = async () => {
-    await deleteSecureItem("user");
-    await deleteSecureItem("authToken");
+    await Promise.all([
+      deleteSecureItem("user"),
+      deleteSecureItem("authToken"),
+      deleteSecureItem("pushToken"),
+    ]);
     setAuthToken(null);
     setUser(null);
   };
@@ -134,7 +137,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       const { success, message, result } = responseData;
       if (!success) {
-        console.error(message||"refreshUserData: No message");
+        console.error(responseData || "refreshUserData: No message");
+        logout();
       } else {
         const updatedUser: UserData = result;
         setUser(updatedUser);
@@ -142,7 +146,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         await setSecureItem("user", JSON.stringify(updatedUser));
       }
     } catch (err: any) {
-      console.error("Error refreshing user data:", err);
+      console.error("Error refreshing user data:", err.response);
     } finally {
       setRefreshing(false);
     }

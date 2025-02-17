@@ -9,6 +9,7 @@ import { Button, lightColors } from "@rneui/themed";
 import LoadingBar from "@/components/ui/cards/LoadingBar";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useAuthModal } from "@/lib/auth/AuthModelProvider";
+import React from "react";
 
 export default function SellerScreen() {
   const route = useRouteInfo();
@@ -37,10 +38,8 @@ export default function SellerScreen() {
 
   const loadMore = () => {
     clearError();
-    if (pagination.seller.hasMore && !loadingStates.fetchSeller)
+    if (pagination?.seller?.hasMore && !loadingStates.fetchSeller)
       fetchSellerPosts(post.user_id || 0, {
-        sort: "created_at",
-        op: "latest",
         perPage: 10,
       });
   };
@@ -78,6 +77,7 @@ export default function SellerScreen() {
             phone={post.phone}
           />
         }
+        contentContainerStyle={styles.container}
         renderItem={({ item }) => (
           <PostCardLandscape
             size={"100%"}
@@ -125,5 +125,6 @@ export default function SellerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    gap: 2,
   },
 });

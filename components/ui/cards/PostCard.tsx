@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   GestureResponderEvent,
   ViewStyle,
+  Dimensions,
 } from "react-native";
 import { Text, Icon, lightColors } from "@rneui/themed";
 import { Image } from "expo-image";
@@ -16,7 +17,7 @@ import { Post } from "@/hooks/store/useFetchPosts";
 
 const PostCard = ({
   post,
-  size = "100%",
+  size,
   onPress,
   toggleSaved,
   style,
@@ -35,9 +36,9 @@ const PostCard = ({
       <View style={[styles.card, { width: size }]}>
         {/* Post Image */}
         <Image
-          style={styles.image}
-          contentFit="fill"
-          source={post.picture.url.medium}
+          style={{ width: size, height: size }}
+          contentFit="cover"
+          source={{ uri: post.picture.url.medium }}
           cachePolicy="memory"
           placeholder={placeholder}
           placeholderContentFit="contain"
@@ -89,8 +90,6 @@ export default memo(PostCard);
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
-    margin: 0,
     overflow: "hidden",
     borderWidth: 0,
     shadowColor: "#000",
@@ -100,7 +99,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   image: {
-    minHeight: 150,
+    height: Dimensions.get("window").width / 2,
     width: "100%",
   },
   infoContainer: {

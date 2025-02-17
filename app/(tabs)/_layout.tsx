@@ -6,38 +6,35 @@ import Logo from "@/components/ui/Logo";
 import { Tabs, useRouter } from "expo-router";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useAuthModal } from "@/lib/auth/AuthModelProvider";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as Notifications from "expo-notifications";
-import NetInfo from "@react-native-community/netinfo";
-import { handleRegisterForPushNotification } from "@/lib/push-notification";
 import { useNotificationStore } from "@/hooks/store/useFetchNotifications";
+import { handleRegisterForPushNotification } from "@/lib/push-notification";
 
 export default function Layout() {
   const router = useRouter();
   const { user } = useAuth();
-
   const { showLoginModal } = useAuthModal();
   const placeholder = require("@/assets/images/icons8-test-account-96.png");
 
   const notificationListener = useRef<Notifications.EventSubscription>();
   const responseListener = useRef<Notifications.EventSubscription>();
-  const { fetchMoreNotifications } = useNotificationStore();
+  const { badgeCount, updateBadgeCount, fetchMoreNotifications } =
+    useNotificationStore();
 
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      if (state.isConnected && user) handleRegisterForPushNotification();
-    });
-
     // Listen to notification
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         // TODO:
+        updateBadgeCount();
         fetchMoreNotifications();
       });
 
     // Listen to notification message click response
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
+        updateBadgeCount();
         // TODO:
         const data = response.notification.request.content;
         console.log("notification", data);
@@ -50,9 +47,11 @@ export default function Layout() {
         );
       responseListener.current &&
         Notifications.removeNotificationSubscription(responseListener.current);
-      // To unsubscribe to these update, just use:
-      unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    handleRegisterForPushNotification();
   }, []);
 
   return (
@@ -124,6 +123,8 @@ export default function Layout() {
         options={{
           tabBarLabel: "Profile",
           headerShown: false,
+          tabBarBadge: badgeCount > 0 ? badgeCount : undefined,
+
           tabBarIcon: ({ color, focused }) => (
             <CustomAvatar
               size={28}

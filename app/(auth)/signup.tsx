@@ -68,13 +68,13 @@ const SignupScreen = () => {
     if (extra && auth_field === "email")
       router.push({
         pathname: "/(auth)/completed",
-        params: extra.sendEmailVerification,
+        params: {message:"Email verification link as been sent to you email. Please check your email to verify your account."},
       });
 
     if (extra && auth_field === "phone")
       router.push({
         pathname: "/(auth)/verify-otp",
-        params: extra.sendOTPVerification,
+        params: {message:"A verification code has been sent to your phone number. Please enter the code to verify your account."},
       });
   }, [extra]);
 

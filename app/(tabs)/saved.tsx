@@ -22,7 +22,7 @@ export default function SavedScreen() {
   useFocusEffect(
     useCallback(() => {
       refreshUserData();
-    }, [refreshUserData])
+    }, [])
   );
 
   const [refreshing, setRefreshing] = useState<boolean>(false);

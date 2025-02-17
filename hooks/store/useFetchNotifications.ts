@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Post } from "./useFetchPosts";
 import { User } from "./useFetchUsers";
 import api from "@/lib/apis/api";
+import * as Notifications from "expo-notifications";
 import { mergeBy, mergeById } from "./mergeUtils";
 
 export interface Notification {
@@ -38,6 +39,7 @@ interface ApiResponse<T> {
 interface NotificationStore {
   items: Notification[];
   page: number;
+  badgeCount: number;
   hasMore: boolean;
   loadingStates: {
     fetchLatest: boolean;
@@ -45,6 +47,8 @@ interface NotificationStore {
   error: string | null;
   fetchLatestNotifications: (params?: Params) => Promise<void>;
   fetchMoreNotifications: () => void;
+  deleteAllNotifications: () => void;
+  updateBadgeCount: () => void;
   clearError: () => void;
   setState: (state: any) => void;
 }
@@ -57,6 +61,7 @@ interface NotificationStoreWithAbort extends NotificationStore {
 export const useNotificationStore = create<NotificationStoreWithAbort>(
   (set: any, get: any) => ({
     items: [],
+    badgeCount: 0,
     hasMore: true,
     page: 1,
     loadingStates: {
@@ -65,6 +70,9 @@ export const useNotificationStore = create<NotificationStoreWithAbort>(
     error: null,
     abortController: null,
     fetchLatestNotifications: async (params?: Params) => {
+      const { fetchLatest } = get().loadingStates;
+      if (fetchLatest) return;
+
       set({ loadingStates: { fetchLatest: true }, error: null });
 
       const controller = new AbortController();
@@ -95,7 +103,11 @@ export const useNotificationStore = create<NotificationStoreWithAbort>(
         }
       } catch (error: any) {
         if (error.name !== "AbortError") {
-          set({ error: error.message, loadingStates: { fetchLatest: false } });
+          set({
+            error: error.message,
+            loadingStates: { fetchLatest: false },
+            hasMore: false,
+          });
         }
       }
     },
@@ -108,6 +120,39 @@ export const useNotificationStore = create<NotificationStoreWithAbort>(
     },
     clearError: () => set({ error: null }),
     setState: (state: any) => set(state),
+    deleteAllNotifications: () => {
+      set({ loadingStates: { fetchLatest: true }, error: null });
+      api
+        .delete(`/api/expo/notifications/all`)
+        .then((response) => {
+          const { success, message } = response.data;
+          if (success) {
+            set({
+              items: [],
+              page: 1,
+              loadingStates: { fetchLatest: false },
+              error: null,
+            });
+          }
+        })
+        .catch((error) => {
+          if (error.name !== "AbortError") {
+            set({
+              error: error.message,
+              loadingStates: { fetchLatest: false },
+            });
+          }
+        });
+    },
+    updateBadgeCount: () => {
+      Notifications.getBadgeCountAsync()
+        .then((badge) => {
+          set({ badgeCount: badge });
+        })
+        .catch((err) => {
+         set({ badgeCount: 0 });
+        });
+    },
     abortRequests: () => {
       if (get().abortController) {
         get().abortController.abort();

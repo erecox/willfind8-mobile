@@ -1,70 +1,20 @@
 import { Linking, StyleSheet, View } from "react-native";
 import ImageSlider from "../ImageSlider";
-import { Button, Icon, lightColors, Text } from "@rneui/themed";
+import { Button, Icon, lightColors, Text, Chip } from "@rneui/themed";
 import { useState } from "react";
 import { router } from "expo-router";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useAuthModal } from "@/lib/auth/AuthModelProvider";
-
-interface Picture {
-  id: number;
-  post_id: number;
-  filename: string;
-  url: {
-    full: string;
-    small: string;
-    medium: string;
-    big: string;
-  };
-}
-
-// Define post interface
-// Define post interface
-interface Post {
-  id: number;
-  title: string;
-  description: string;
-  price: string;
-  contact_name: string;
-  phone: string;
-  pictures?: Array<Picture>;
-  count_pictures?: number;
-  user_photo_url: string;
-  negotiable: number | null;
-  category: {
-    id: number;
-    name: string;
-    slug: string;
-    parent: {
-      id: number;
-      name: string;
-      picture_url: string;
-    };
-  };
-  city: {
-    id: number;
-    name: string;
-    latitude: string;
-    longitude: string;
-  };
-  price_formatted: string;
-  created_at_formatted: string;
-  picture: Picture;
-  ads_count?: number;
-}
+import React from "react";
+import { Post } from "@/hooks/store/useFetchPosts";
 
 export default function PostSlider({
-  id,
-  title,
-  price_formatted,
-  created_at_formatted,
-  city,
-  phone,
-  pictures,
-  picture,
-  count_pictures,
+  post,
   onImagePress,
-}: Post & { onImagePress: (index: number) => void }) {
+}: {
+  post: Post;
+  onImagePress: (index: number) => void;
+}) {
   const [viewPhone, setViewPhone] = useState(false);
   const { user } = useAuth();
   const { showLoginModal } = useAuthModal();
@@ -72,34 +22,54 @@ export default function PostSlider({
   const handleCall = async () => {
     if (!user) return showLoginModal();
 
-    await Linking.openURL(`tel:${phone}`);
+    await Linking.openURL(`tel:${post.phone}`);
   };
   const handleChat = () => {
     if (!user) return showLoginModal();
-    router.push({ pathname: "/ads/chat", params: { postId: id } });
+    router.push({ pathname: "/ads/chat", params: { postId: post.id } });
   };
 
   return (
     <View style={styles.container}>
       <ImageSlider
-        count_pictures={count_pictures}
+        count_pictures={post.count_pictures}
         onPress={(index) => onImagePress(index)}
-        pictures={pictures ? pictures : picture ? [picture] : []}
+        pictures={
+          post.pictures ? post.pictures : post.picture ? [post.picture] : []
+        }
       />
+      {/*Post Active Status */}
+      <View
+        style={{
+          flexDirection: "row",
+          position: "absolute",
+          top: 10,
+          start: 10,
+        }}
+      >
+        {user?.id === post.user_id ? (
+          <Chip
+            size="sm"
+            color={post.reviewed_at ? "success" : "warning"}
+            title={post.reviewed_at ? "Active" : "Pending Review"}
+          />
+        ) : null}
+      </View>
+      {/* Location and Date */}
       <View style={styles.locationContainer}>
         <Text style={styles.location}>
           <Icon name="map-marker" type="font-awesome" color="#888" size={12} />{" "}
-          {city?.name}
+          {post.city?.name}
         </Text>
-        <Text style={styles.date}>{created_at_formatted}</Text>
+        <Text style={styles.date}>{post.created_at_formatted}</Text>
       </View>
 
       {/* Post Details */}
       <View style={styles.infoContainer}>
         <Text numberOfLines={3} style={styles.title}>
-          {title}
+          {post.title}
         </Text>
-        <Text style={styles.price}>{price_formatted}</Text>
+        <Text style={styles.price}>{post.price_formatted}</Text>
 
         <View style={styles.actions}>
           <Button
@@ -116,7 +86,7 @@ export default function PostSlider({
             onPress={viewPhone ? () => handleCall() : () => setViewPhone(true)}
             color={lightColors.primary}
             icon={{ name: viewPhone ? "wifi-calling" : "call", color: "white" }}
-            title={viewPhone ? phone : "Call"}
+            title={viewPhone ? post.phone : "Call"}
             radius={15}
             size="sm"
             containerStyle={{ width: "50%" }}

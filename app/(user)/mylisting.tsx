@@ -45,6 +45,9 @@ export default function MessagesScreen() {
     fetchLoggedInUserPosts,
     fetchLoggedInUserPendingPosts,
     fetchLoggedInUserArchivedPosts,
+    resetUserActivePosts,
+    resetUserPendingPosts,
+    resetUserArchivedPosts,
     deletePosts,
     loadingStates,
     addToSavedPost,
@@ -113,19 +116,19 @@ export default function MessagesScreen() {
   };
 
   const loadMore = () => {
-    if (!loadingStates.fetchUserPost && pagination.userPost.hasMore) {
+    if (!loadingStates.fetchUserPost && pagination?.userPost?.hasMore) {
       fetchLoggedInUserPosts();
     }
   };
 
   const loadPendigMore = () =>
     !loadingStates.fetchUserPendingPost &&
-    pagination.userPendingPost.hasMore &&
+    pagination?.userPendingPost?.hasMore &&
     fetchLoggedInUserPendingPosts();
 
   const loadArchivedMore = () =>
     !loadingStates.fetchUserArchivedPost &&
-    pagination.userArchivedPost.hasMore &&
+    pagination?.userArchivedPost?.hasMore &&
     fetchLoggedInUserArchivedPosts();
 
   const refresh = (refresh: "all" | "pending" | "archived") => {
@@ -133,6 +136,7 @@ export default function MessagesScreen() {
       case "archived":
         if (!loadingStates.fetchUserArchivedPost) {
           setRefreshing({ ...refreshing, archived: true });
+          resetUserArchivedPosts();
           fetchLoggedInUserArchivedPosts({ page: 1 }).finally(() =>
             setRefreshing({ ...refreshing, archived: false })
           );
@@ -140,6 +144,7 @@ export default function MessagesScreen() {
       case "pending":
         if (!loadingStates.fetchUserPendingPost) {
           setRefreshing({ ...refreshing, pending: true });
+          resetUserPendingPosts();
           fetchLoggedInUserPendingPosts({ page: 1 }).finally(() =>
             setRefreshing({ ...refreshing, pending: false })
           );
@@ -147,6 +152,7 @@ export default function MessagesScreen() {
       default:
         if (!loadingStates.fetchUserPost) {
           setRefreshing({ ...refreshing, all: true });
+          resetUserActivePosts();
           fetchLoggedInUserPosts({ page: 1 }).finally(() =>
             setRefreshing({ ...refreshing, all: false })
           );

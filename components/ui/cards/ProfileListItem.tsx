@@ -15,6 +15,7 @@ export default function ProfileListItem({
   title,
   message,
   imageUrl,
+  postThumbnail,
   date,
   onPress,
   titleStyle,
@@ -25,6 +26,7 @@ export default function ProfileListItem({
   title: string;
   message?: string;
   imageUrl?: string | null;
+  postThumbnail?: string | null;
   date?: string;
   onPress?: (e: any) => void;
   titleStyle?: StyleProp<TextStyle>;
@@ -60,6 +62,7 @@ export default function ProfileListItem({
           >
             {message}
           </ListItem.Subtitle>
+          {postThumbnail && <CustomAvatar source={postThumbnail} size={50} />}
         </ListItem.Content>
       </ListItem>
     </TouchableOpacity>

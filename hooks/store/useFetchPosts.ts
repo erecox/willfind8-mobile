@@ -80,6 +80,7 @@ export interface Post {
   user_id: number;
   email: string;
   negotiable: number | null;
+  reviewed_at: string | null;
   savedByLoggedUser?: Array<SavedUser>;
   category: {
     id: number;
@@ -195,6 +196,9 @@ interface PostStore {
   resetRelatedPosts: (postId: number) => void;
   resetLatestPosts: () => void;
   resetSavedPosts: () => void;
+  resetUserArchivedPosts: () => void;
+  resetUserActivePosts: () => void;
+  resetUserPendingPosts: () => void;
   fetchRelatedPosts: (postId: number, params?: Params) => Promise<void>;
   fetchSellerPosts: (sellerId: number, params?: Params) => Promise<void>;
   fetchPost: (postId: number, params?: Params) => Promise<void>;
@@ -288,6 +292,9 @@ const usePostStore = create<
 
   // Fetch latest posts
   fetchLatestPosts: async (params?: Params) => {
+    const { fetchLatest } = get().loadingStates;
+    if (fetchLatest) return;
+
     const abortController = new AbortController();
     set({
       abortController,
@@ -297,14 +304,12 @@ const usePostStore = create<
 
     try {
       const { pagination } = get();
-      const { page, hasMore } = pagination.latest;
-
-      if (!hasMore) return;
+      const { page } = pagination.latest;
 
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
         params: {
           op: "latest",
-          embed: "user,category,city,savedByLoggedUser,pictures",
+          embed: "user,category,city,pictures",
           page,
           ...params,
         },
@@ -345,6 +350,10 @@ const usePostStore = create<
         set({
           error: error.message || "Something went wrong",
           loadingStates: { ...get().loadingStates, fetchLatest: false },
+          pagination: {
+            ...get().pagination,
+            latest: { ...get().pagination.latest, hasMore: false },
+          },
         });
       }
     } finally {
@@ -354,6 +363,9 @@ const usePostStore = create<
 
   // Fetch user posts
   fetchLoggedInUserPosts: async (params?: Params) => {
+    const { fetchUserPost } = get().loadingStates;
+    if (fetchUserPost) return;
+
     const abortController = new AbortController();
     set({
       abortController,
@@ -363,9 +375,7 @@ const usePostStore = create<
 
     try {
       const { pagination } = get();
-      const { page, hasMore } = pagination.userPost;
-
-      if (!hasMore) return;
+      const { page } = pagination.userPost;
 
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
         params: {
@@ -411,6 +421,7 @@ const usePostStore = create<
         set({
           error: error.message || "Something went wrong",
           loadingStates: { ...get().loadingStates, fetchUserPost: false },
+          pagination: { ...get().pagination, userPost: { hasMore: false } },
         });
       }
     } finally {
@@ -420,6 +431,9 @@ const usePostStore = create<
 
   // Fetch pending posts
   fetchLoggedInUserPendingPosts: async (params?: Params) => {
+    const { fetchUserPendingPost } = get().loadingStates;
+    if (fetchUserPendingPost) return;
+
     const abortController = new AbortController();
     set({
       abortController,
@@ -430,8 +444,6 @@ const usePostStore = create<
     try {
       const { pagination } = get();
       const { page, hasMore } = pagination.userPendingPost;
-
-      if (!hasMore) return;
 
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
         params: {
@@ -490,6 +502,10 @@ const usePostStore = create<
             ...get().loadingStates,
             fetchUserPendingPost: false,
           },
+          pagination: {
+            ...get().pagination,
+            userPendingPost: { hasMore: false },
+          },
         });
       }
     } finally {
@@ -498,18 +514,19 @@ const usePostStore = create<
   },
   // Fetch archived posts
   fetchLoggedInUserArchivedPosts: async (params?: Params) => {
+    const { fetchUserArchivedPost } = get().loadingStates;
+    if (fetchUserArchivedPost) return;
+
     const abortController = new AbortController();
     set({
       abortController,
-      loadingStates: { ...get().loadingStates, fetchUserPendingPost: true },
+      loadingStates: { ...get().loadingStates, fetchUserArchivedPost: true },
       error: null,
     });
 
     try {
       const { pagination } = get();
-      const { page, hasMore } = pagination.userPendingPost;
-
-      if (!hasMore) return;
+      const { page } = pagination.userPendingPost;
 
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
         params: {
@@ -568,6 +585,10 @@ const usePostStore = create<
             ...get().loadingStates,
             fetchUserArchivedPost: false,
           },
+          pagination: {
+            ...get().pagination,
+            userArchivedPost: { hasMore: false },
+          },
         });
       }
     } finally {
@@ -576,6 +597,9 @@ const usePostStore = create<
   },
   // Fetch saved posts
   fetchSavedPosts: async (params?: Params) => {
+    const { fetchSaved } = get().loadingStates;
+    if (fetchSaved) return;
+
     // Create a new AbortController
     const abortController = new AbortController();
     set({
@@ -586,7 +610,7 @@ const usePostStore = create<
 
     try {
       const { pagination } = get();
-      const { page, hasMore } = pagination.saved;
+      const { page } = pagination.saved;
 
       // Make the API call
       const response = await api.get<ApiResponse<SavedPost[]>>(
@@ -647,8 +671,8 @@ const usePostStore = create<
         set({
           error: error.message || "Something went wrong",
           loadingStates: { ...get().loadingStates, fetchSaved: false },
+          pagination: { ...get().pagination, saved: { hasMore: false } },
         });
-      } else {
       }
     } finally {
       // Cleanup
@@ -704,14 +728,12 @@ const usePostStore = create<
 
     try {
       const { pagination } = get();
-      const { page, hasMore } = pagination.search;
-
-      if (!hasMore) return;
+      const { page } = pagination.search;
 
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
         params: {
-          op: "search",
-          embed: "category,city,savedByLoggedUser",
+          op: "premium",
+          embed: "category,city",
           page,
           ...params,
         },
@@ -720,6 +742,7 @@ const usePostStore = create<
       const { success, extra, message, result } = response.data;
 
       if (success) {
+        console.log("Search result fetched");
         const { data: newPosts, meta } = result;
         get().processFetchedPosts(newPosts);
 
@@ -756,6 +779,9 @@ const usePostStore = create<
 
   // Fetch seller posts
   fetchSellerPosts: async (sellerId: number, params?: Params) => {
+    const { fetchSeller } = get().loadingStates;
+    if (fetchSeller) return;
+
     set({
       loadingStates: { ...get().loadingStates, fetchSeller: true },
       error: null,
@@ -768,7 +794,7 @@ const usePostStore = create<
       const response = await api.get<ApiResponse<Post[]>>("/api/posts", {
         params: {
           op: "search",
-          embed: "user,category,city,savedByLoggedUser,pictures",
+          embed: "user,category,city,pictures",
           page,
           userId: sellerId,
           ...params,
@@ -816,7 +842,14 @@ const usePostStore = create<
   },
 
   // Fetch related posts by postId
-  fetchRelatedPosts: async (postId: number, params?: Params) => {
+  fetchRelatedPosts: async (
+    postId: number,
+    params?: Params,
+    belongLoggedUser?: boolean
+  ) => {
+    const { fetchRelated } = get().loadingStates;
+    if (fetchRelated) return;
+
     set({
       loadingStates: { ...get().loadingStates, fetchRelated: true },
       error: null,
@@ -829,7 +862,7 @@ const usePostStore = create<
       const response = await api.get<ApiResponse<Post[]>>(`/api/posts`, {
         params: {
           op: "similar",
-          embed: "user,category,city,savedByLoggedUser,pictures",
+          embed: "user,category,city,pictures",
           postId,
           page,
           ...params,
@@ -882,7 +915,12 @@ const usePostStore = create<
     });
 
     try {
-      const response = await api.get(`/api/posts/${postId}`, { params });
+      const response = await api.get(`/api/posts/${postId}`, {
+        params: {
+          detailed: 1,
+          ...params,
+        },
+      });
 
       const { success, message, result, extra } = response.data;
 
@@ -1030,6 +1068,9 @@ const usePostStore = create<
   },
 
   archivePost: async (postId: number) => {
+    const { archivePost } = get().loadingStates;
+    if (archivePost) return;
+
     set({
       loadingStates: { ...get().loadingStates, archivePost: true },
       error: null,
@@ -1191,7 +1232,6 @@ const usePostStore = create<
       pagination: {
         ...state.pagination,
         latest: {
-          ...state.pagination.latest,
           hasMore: true,
           page: 1,
         },
@@ -1205,6 +1245,47 @@ const usePostStore = create<
         ...state.pagination,
         saved: {
           ...state.pagination.saved,
+          hasMore: true,
+          page: 1,
+        },
+      },
+    }));
+  },
+  resetUserPendingPosts: () => {
+    set((state) => ({
+      userPendingPostIds: [],
+      pagination: {
+        ...state.pagination,
+        saved: {
+          ...state.pagination.userPendingPost,
+          hasMore: true,
+          page: 1,
+        },
+      },
+    }));
+  },
+
+  resetUserArchivedPosts: () => {
+    set((state) => ({
+      userArchivedPostIds: [],
+      pagination: {
+        ...state.pagination,
+        saved: {
+          ...state.pagination.userArchivedPost,
+          hasMore: true,
+          page: 1,
+        },
+      },
+    }));
+  },
+
+  resetUserActivePosts: () => {
+    set((state) => ({
+      userPostIds: [],
+      pagination: {
+        ...state.pagination,
+        saved: {
+          ...state.pagination.userPost,
           hasMore: true,
           page: 1,
         },

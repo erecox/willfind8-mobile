@@ -19,6 +19,7 @@ import LoadingScreen from "@/components/ui/LoadingScreen";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import ReportSellerProvider from "@/components/inputs/ReportSellerModal";
 import * as Notifications from "expo-notifications";
+import { useNotificationStore } from "@/hooks/store/useFetchNotifications";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -35,19 +36,42 @@ export default function RootLayout() {
   });
 
   const { fetchCategories } = useCategoryStore();
-  const { fetchLatestPosts } = usePostStore();
+  const {
+    fetchLatestPosts,
+    fetchLoggedInUserPosts,
+    fetchLoggedInUserPendingPosts,
+    fetchLoggedInUserArchivedPosts,
+  } = usePostStore();
+  const { fetchLatestNotifications } = useNotificationStore();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       await fetchCategories({ perPage: 20 });
-      await fetchLatestPosts({ sort: "created_at", op: "latest", perPage: 10 });
+      await fetchLatestPosts({op: "latest", perPage: 10 });
       setLoading(false);
     };
 
     loadData();
   }, [fetchCategories, fetchLatestPosts]);
 
+  useEffect(() => {
+    fetchLatestNotifications()
+      .catch(() => {
+        console.log("Failed to fetch notifications");
+      })
+      .finally(() => {
+        fetchLoggedInUserPosts().catch(() => {
+          console.log("Failed to fetch logged in user posts");
+        });
+        fetchLoggedInUserPendingPosts().catch(() => {
+          console.log("Failed to fetch logged in user pending posts");
+        });
+        fetchLoggedInUserArchivedPosts().catch(() => {
+          console.log("Failed to fetch logged in user archived posts");
+        });
+      });
+  }, []);
   // Display loading screen while fonts or data are loading
   if (loading || !loaded) {
     return <LoadingScreen />;

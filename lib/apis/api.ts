@@ -13,7 +13,6 @@ api.interceptors.request.use(
   async (config) => {
     // Try to retrieve the auth token from AsyncStorage
     const authToken = await SecureStore.getItemAsync("authToken");
-    
     // If token exists, add it as a Bearer token to the request headers
     if (authToken) {
       config.headers["Authorization"] = `Bearer ${authToken}`;

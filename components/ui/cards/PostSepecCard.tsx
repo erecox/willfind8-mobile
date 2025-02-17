@@ -2,6 +2,7 @@ import { lightColors, Text } from "@rneui/themed";
 import { FlatList, StyleSheet, View, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { Feather } from "@expo/vector-icons";
+import React from "react";
 
 export default function PostSepecCard({
   list,

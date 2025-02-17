@@ -9,6 +9,7 @@ import TextInput from "@/components/inputs/TextInput";
 import { useFetchAuth } from "@/hooks/store/useFetchAuth";
 import { router } from "expo-router";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { handleRegisterForPushNotification } from "@/lib/push-notification";
 
 // Validation schema using Yup
 const LoginSchema = Yup.object().shape({
@@ -46,6 +47,7 @@ const LoginScreen = () => {
     if (error) Alert.alert("Login Failed!", error);
     else if (response && typeof response !== "boolean") {
       login(response, extra?.authToken || "");
+      handleRegisterForPushNotification();
       router.dismissAll();
       router.push("/(tabs)");
     }

@@ -143,46 +143,10 @@ const SearchLayout = () => {
       style={[
         styles.container,
         {
-          paddingTop: insets.top,
+          paddingTop: insets.top + 60,
         },
       ]}
     >
-      <View style={styles.navContainer}>
-        <TouchableOpacity style={styles.btn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={28} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => {
-            router.push("../search/search");
-          }}
-          style={{ flex: 1 }}
-        >
-          <SearchBar
-            onPress={() => {
-              if (query) router.dismiss();
-              else
-                router.push({
-                  pathname: "../search/search",
-                  params: { query },
-                });
-            }}
-            placeholder="What are you looking for?"
-            search={searchValue}
-            onChangeText={setSearchValue}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btnFilter}
-          onPress={() =>
-            router.push({
-              pathname: "../search/filters",
-            })
-          }
-        >
-          <Feather name="filter" size={24} color={lightColors.grey2} />
-        </TouchableOpacity>
-      </View>
       <FlatList
         ListHeaderComponent={
           <ScrollView
@@ -190,7 +154,7 @@ const SearchLayout = () => {
             style={{
               flexDirection: "row",
               paddingHorizontal: 10,
-              marginBottom: 5,
+              marginVertical: 5,
             }}
             contentContainerStyle={{
               gap: 8,
@@ -309,6 +273,42 @@ const SearchLayout = () => {
         initialNumToRender={10}
         removeClippedSubviews
       />
+      <View style={[styles.navContainer, { height: insets.top + 60 }]}>
+        <TouchableOpacity style={styles.btn} onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={28} color={lightColors.white} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => {
+            router.push("../search/search");
+          }}
+          style={{ flex: 1 }}
+        >
+          <SearchBar
+            onPress={() => {
+              if (query) router.dismiss();
+              else
+                router.push({
+                  pathname: "../search/search",
+                  params: { query },
+                });
+            }}
+            placeholder="What are you looking for?"
+            search={searchValue}
+            onChangeText={setSearchValue}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.btnFilter}
+          onPress={() =>
+            router.push({
+              pathname: "../search/filters",
+            })
+          }
+        >
+          <Feather name="filter" size={24} color={lightColors.black} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -322,7 +322,6 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: 8,
-    paddingBottom: 8,
     paddingTop: 60,
   },
   loader: {
@@ -330,6 +329,8 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   navContainer: {
+    position: "absolute",
+    width: "100%",
     flexDirection: "row",
     justifyContent: "center",
     paddingHorizontal: 8,
@@ -340,15 +341,19 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: "center",
     alignItems: "center",
+    alignSelf: "flex-end",
+    marginBottom: 8,
   },
   btnFilter: {
-    width: 38,
-    height: 38,
+    width: 40,
+    height: 40,
     marginStart: 4,
+    marginBottom: 8,
     padding: 4,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: lightColors.grey5,
     borderRadius: 5,
+    alignSelf: "flex-end",
   },
 });

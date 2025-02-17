@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Button, Text } from "@rneui/themed";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigation, useRouter } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import { useFocusEffect, useNavigation, useRouter } from "expo-router";
 
 import CategoryGrid from "@/components/ui/lists/CategoryGrid";
 import PostCardLandscape from "@/components/ui/cards/PostCardLandscape";
@@ -20,7 +20,6 @@ import useCategoryStore from "@/hooks/store/useFetchCategories";
 import { useFilterStore } from "@/hooks/store/filterStore";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useAuthModal } from "@/lib/auth/AuthModelProvider";
-import { useFocusEffect } from "expo-router";
 import React from "react";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
@@ -28,17 +27,13 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 export default function HomeScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { user, refreshUserData } = useAuth();
+  const { user } = useAuth();
   const { showLoginModal } = useAuthModal();
-
-  useFocusEffect(
-    useCallback(() => {
-      refreshUserData();
-    }, [refreshUserData])
-  );
 
   const scrollY = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef<FlatList>(null); // Ref for the FlatList
+  const scrollOffsetRef = useRef(0);
+
   const translateY = scrollY.interpolate({
     inputRange: [0, 100],
     outputRange: [0, -150],
@@ -61,12 +56,36 @@ export default function HomeScreen() {
     addToSavedPost,
     fetchLatestPosts,
     resetLatestPosts,
+    pagination,
   } = usePostStore((state) => state);
   const { setDefaultFilters } = useFilterStore();
-
   const lastPressRef = useRef<number | null>(null);
   const DOUBLE_PRESS_DELAY = 300; // Double press threshold in milliseconds
   const navigation = useNavigation();
+  const [homeScrollOffset, setHomeScrollOffset] = useState<number | undefined>(
+    0
+  );
+  const loadMorePost = async () => {
+    if (!pagination.latest.hasMore) return;
+    await fetchLatestPosts({ perPage: 10 });
+  };
+
+  const handlePostClick = (item: any) =>
+    router.push({ pathname: "../ads/details", params: { id: item.id } });
+
+  const handleToggleSaved = (postId: number) => {
+    if (!user) return showLoginModal();
+    addToSavedPost(postId, user);
+  };
+
+  useEffect(() => {
+    const unsubscribeBlur = navigation.addListener("blur", () => {
+      setHomeScrollOffset(scrollOffsetRef.current);
+    });
+    return () => {
+      unsubscribeBlur();
+    };
+  }, [navigation, setHomeScrollOffset]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("tabPress", () => {
@@ -83,17 +102,17 @@ export default function HomeScreen() {
     return unsubscribe; // Clean up the event listener
   }, [navigation]);
 
-  const loadMorePost = async () => {
-    await fetchLatestPosts({ sort: "created_at", op: "latest", perPage: 10 });
-  };
-
-  const handlePostClick = (item: any) =>
-    router.push({ pathname: "../ads/details", params: { id: item.id } });
-
-  const handleToggleSaved = (postId: number) => {
-    if (!user) return showLoginModal();
-    addToSavedPost(postId, user);
-  };
+  // Restore scroll position on focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (scrollRef.current && homeScrollOffset !== undefined) {
+        scrollRef.current.scrollToOffset({
+          offset: homeScrollOffset,
+          animated: false,
+        });
+      }
+    }, [homeScrollOffset])
+  );
 
   return (
     <>
@@ -146,7 +165,13 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
+          {
+            useNativeDriver: true,
+            listener: (event) => {
+              const offset = event.nativeEvent.contentOffset.y;
+              scrollOffsetRef.current = offset;
+            },
+          }
         )}
         renderItem={({ item }: { item: any }) => (
           <PostCardLandscape
@@ -165,7 +190,7 @@ export default function HomeScreen() {
           setRefreshing(true);
           fetchCategories({ perPage: 20 });
           resetLatestPosts();
-          fetchLatestPosts({ page: 1, op: "latest", perPage: 10 }).finally(() =>
+          fetchLatestPosts({ page: 1, perPage: 10 }).finally(() =>
             setRefreshing(false)
           );
         }}
@@ -176,8 +201,10 @@ export default function HomeScreen() {
             <View style={{ paddingVertical: 50 }}>
               <Button
                 onPress={() => {
-                  loadMorePost();
-                  fetchCategories({ perPage: 20 });
+                  resetLatestPosts();
+                  fetchLatestPosts({
+                    page: 1,
+                  }).finally(() => setRefreshing(false));
                 }}
                 type="clear"
                 title={"Try again"}

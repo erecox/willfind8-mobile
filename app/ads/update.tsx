@@ -25,6 +25,7 @@ import { useFilterStore } from "@/hooks/store/filterStore";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import usePostStore from "@/hooks/store/useFetchPosts";
 import { useRouteInfo } from "expo-router/build/hooks";
+import React from "react";
 
 export default function AdsScreen() {
   const route = useRouteInfo();
@@ -37,14 +38,13 @@ export default function AdsScreen() {
     fetchFilters,
     defaultFilters,
     setDefaultFilters,
-    setDynamicFilters
+    setDynamicFilters,
   } = useFilterStore();
 
   const { items, updatePost, loadingStates } = usePostStore();
   const post = items[postId];
 
   const inputRef = useRef();
-  const { user } = useAuth();
   const category = defaultFilters.find(
     (filter) => filter.id === "c"
   )?.selectedValue;
@@ -67,7 +67,9 @@ export default function AdsScreen() {
   const buildValidationSchema = () => {
     const schema = {
       title: Yup.string().required("Title is required"),
-      description: Yup.string().required("Description is required"),
+      description: Yup.string()
+        .required("Description is required")
+        .min(10, "Description must be at least 10 characters"),
       permanent: Yup.boolean(),
       price: Yup.string().required("Price is required"),
       email: Yup.string().email("Invalid email").required("Email is required"),
@@ -142,7 +144,7 @@ export default function AdsScreen() {
 
   useEffect(() => {
     fetchFilters(post.category.id);
-   // setDynamicFilters(post.extra?.fieldsValues.)
+    // setDynamicFilters(post.extra?.fieldsValues.)
   }, [post]);
 
   return (

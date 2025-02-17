@@ -1,17 +1,19 @@
 // components/SettingOption.js
 import React, { PropsWithChildren } from "react";
 import { TouchableOpacity } from "react-native";
-import { ListItem, Icon } from "@rneui/themed";
+import { ListItem, Icon, Badge } from "@rneui/themed";
 
 const SettingOption = ({
   title,
   icon,
   value,
+  badgeCount,
   onPress,
 }: PropsWithChildren & {
   title: string;
   icon: string;
   value?: string;
+  badgeCount?: number | string;
   onPress: () => void;
 }) => {
   return (
@@ -22,10 +24,11 @@ const SettingOption = ({
           style={{ flexDirection: "row", justifyContent: "space-between" }}
         >
           <ListItem.Title>{title}</ListItem.Title>
-          <ListItem.Title numberOfLines={1} style={{ maxWidth: "50%" }}>
+          <ListItem.Subtitle numberOfLines={1} style={{ maxWidth: "50%" }}>
             {value}
-          </ListItem.Title>
+          </ListItem.Subtitle>
         </ListItem.Content>
+        {badgeCount ? <Badge value={badgeCount} status="error" /> : null}
         <ListItem.Chevron />
       </ListItem>
     </TouchableOpacity>

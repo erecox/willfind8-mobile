@@ -8,6 +8,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { SearchBar as RNSearchBar, Button, lightColors } from "@rneui/themed";
+import React from "react";
 
 export default function SearchBar({
   placeholder = "Whare are you looking for...",

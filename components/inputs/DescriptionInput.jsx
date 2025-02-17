@@ -44,7 +44,7 @@ export default function DescriptionInput({
         ref={ref}
         initialContentHTML={value}
         onChange={onChange}
-        placeholder="Describe what makes your listing unique..."
+        placeholder="Describe what makes your listing unique (min. 10 letters)..."
         style={[styles.input, inputStyle]}
         onFocus={onFocus}
         onBlur={onBlur}

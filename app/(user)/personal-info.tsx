@@ -9,6 +9,7 @@ import { LabelList } from "@/components/ui/lists/LabelList";
 import ImagePickerInput2 from "@/components/inputs/ImagePickerInput2";
 import LoadingBar from "@/components/ui/cards/LoadingBar";
 import convertImageToBase64 from "@/scripts/convertImageToBase64";
+import React from "react";
 
 // Validation schema using Yup
 const UserSchema = Yup.object().shape({
@@ -130,14 +131,12 @@ export default function UserScreen() {
     const fileType = `image/${fileName?.split(".").pop()}`;
     const base64 = await convertImageToBase64(uri);
 
-    const photo = `data:${fileType};base64,${base64}`;
+    const img = `data:${fileType};base64,${base64}`;
 
-    console.log("photo",photo);
-    
     if (user)
       uploadPhoto(user?.id, {
         ...user,
-        photo,
+        img,
       });
   };
 

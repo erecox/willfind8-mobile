@@ -7,20 +7,32 @@ import React from "react";
 import { useCallback, useEffect } from "react";
 import { View, StyleSheet, Alert, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as Notifications from "expo-notifications";
+import { useNotificationStore } from "@/hooks/store/useFetchNotifications";
 
 export default function ProfileScreen() {
   const { logout, user, refreshUserData } = useAuth();
+  const { items, updateBadgeCount } = useNotificationStore();
 
   useFocusEffect(
     useCallback(() => {
       refreshUserData();
-    }, [refreshUserData])
+    }, [])
   );
 
   useEffect(() => {
     if (!user) router.push("/(tabs)");
   }, [user, router]);
 
+  useFocusEffect(
+    useCallback(() => {
+      handleClearBadgeCount();
+    }, [])
+  );
+  const handleClearBadgeCount = async () => {
+    await Notifications.setBadgeCountAsync(0);
+    updateBadgeCount();
+  };
   // Handler functions for each option
   const handleMyListingPress = () =>
     router.push({ pathname: "/(user)/mylisting" });
@@ -31,8 +43,10 @@ export default function ProfileScreen() {
   const handleBusinessInfoPress = () =>
     router.push({ pathname: "/(user)/business-info" });
 
-  const handleNotificationPress = () =>
+  const handleNotificationPress = () => {
+    handleClearBadgeCount();
     router.push({ pathname: "/(user)/notifications" });
+  };
 
   const handleSignInSecurityPress = () =>
     router.push({ pathname: "/(user)/signin-security" });
@@ -79,10 +93,13 @@ export default function ProfileScreen() {
           icon="post-add"
           onPress={handleMyListingPress}
         />
-         <SettingOption
+        <SettingOption
           title="Notifications"
           icon="notifications"
           onPress={handleNotificationPress}
+          badgeCount={
+            items.filter((item) => item.status === "delivered").length
+          }
         />
 
         {/* Divider for separating account management */}

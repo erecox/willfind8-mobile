@@ -24,7 +24,7 @@ import { useReportSeller } from "@/components/inputs/ReportSellerModal";
 export default function DetailsLayout() {
   const route = useRouteInfo();
   const { user } = useAuth();
-  const { openSheet, closeSheet } = useReportSeller();
+  const { openSheet } = useReportSeller();
   const { showLoginModal } = useAuthModal();
   const { id } = route.params;
   const postId = parseInt(id?.toString());
@@ -39,6 +39,7 @@ export default function DetailsLayout() {
     fetchSellerPosts,
     addToSavedPost,
     sellerPosts,
+    resetRelatedPosts,
     extras,
   } = usePostStore();
   const post = items[postId];
@@ -51,14 +52,12 @@ export default function DetailsLayout() {
 
   useEffect(() => {
     fetchRelatedPosts(postId, {
-      sort: "created_at",
-      op: "similar",
       perPage: 10,
     });
   }, [fetchRelatedPosts]);
 
   useEffect(() => {
-    fetchPost(postId, { detailed: 1 });
+    fetchPost(postId, { detailed: 1, belongLoggedUser: user ? 1 : 0 });
   }, [fetchPost]);
 
   useEffect(() => {
@@ -73,18 +72,16 @@ export default function DetailsLayout() {
   useEffect(() => {
     if (post && post.user)
       fetchSellerPosts(post.user?.id, {
-        sort: "created_at",
-        op: "latest",
+        detailed: user ? 1 : 0,
         perPage: 5,
       });
   }, [fetchSellerPosts]);
 
   const loadMore = () => {
-    if (pagination.related.hasMore && !loadingStates.fetchRelated)
+    if (pagination?.related?.hasMore && !loadingStates?.fetchRelated)
       fetchRelatedPosts(postId, {
-        sort: "created_at",
-        op: "search",
         perPage: 10,
+        detailed: user ? 1 : 0,
       });
   };
 
@@ -178,7 +175,7 @@ export default function DetailsLayout() {
                   params: { imageIndex: index, postId },
                 });
               }}
-              {...post}
+              post={post}
             />
             <PostSepecCard list={sepecs.current} />
             <DescriptionCard htmlContent={post?.description} />
@@ -215,13 +212,14 @@ export default function DetailsLayout() {
         onEndReachedThreshold={0.5}
         ListFooterComponent={
           loadingStates.fetchRelated ? (
-            <View style={{ paddingVertical: 30 }}>
+            <View>
               <ActivityIndicator size="small" />
             </View>
           ) : error ? (
-            <View style={{ paddingVertical: 50 }}>
+            <View style={{ alignItems: "center", paddingVertical: 10 }}>
               <Button
                 onPress={() => {
+                  resetRelatedPosts(postId);
                   loadMore();
                 }}
                 type="clear"

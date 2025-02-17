@@ -69,7 +69,7 @@ export default function SellerAdsList({
         <FlatList
           data={userPosts.slice(0, 5)}
           horizontal
-          contentContainerStyle={{ gap: 8 }}
+          contentContainerStyle={{ gap: 2 }}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <SimplePostCard
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   adsList: {
-    marginVertical: 8,
+    margin: 8,
   },
   seeAllButton: {
     marginTop: 12,

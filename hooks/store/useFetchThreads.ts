@@ -12,7 +12,7 @@ interface ResponseData {
   success: boolean;
   message: string | null;
   result: {
-    data: Thread[];
+    data: ThreadMessage[];
     meta: Meta;
   };
 }
@@ -29,38 +29,31 @@ export interface Recipient {
   created_at_formatted: string;
 }
 
-// Interfaces for Messsage Data
 export interface Message {
   id: number;
   thread_id: number;
+  user_id: number;
   body: string;
-  updated_at: string;
   filename: string | null;
+  deleted_by: null;
+  deleted_at: null;
+  created_at: string;
+  updated_at: string;
   created_at_formatted: string;
   p_recipient: Recipient;
 }
 
-interface MessageResponse {
-  success: boolean;
-  message: string | null;
-  result: {
-    data: Message[];
-    meta: Meta;
-  };
-}
-// Interfaces for Threads Data
-export interface Thread {
+// Interfaces for Messsage Data
+export interface ThreadMessage {
   id: number;
   post_id: number;
   subject: string;
   updated_at: string;
-  latest_message: LatestMessage | null;
   p_is_unread: boolean;
-  p_creator: Creator;
+  p_creator: User;
   p_is_important: boolean;
-  p_is_started: boolean; // Assuming there is a started state or flag
-  post: Post;
-  user: User;
+  post?: Post;
+  latest_message: LatestMessage;
 }
 
 interface LatestMessage {
@@ -83,7 +76,7 @@ interface Creator {
 
 // Zustand Store Interface
 interface ThreadsState {
-  threads: Thread[]; // Store all thread data
+  threads: ThreadMessage[]; // Store all thread data
   unreadIds: Set<number>;
   importantIds: Set<number>;
   startedIds: Set<number>;
@@ -136,7 +129,7 @@ export const useThreadsStore = create<ThreadsState>((set, get) => ({
     });
 
     try {
-      const response = await api.get<ResponseData>(`api/threads`, {
+      const response = await api.get<ResponseData>(`/api/threads`, {
         params: { page, embed, filter },
       });
       const { success, result, message } = response.data;
@@ -165,7 +158,7 @@ export const useThreadsStore = create<ThreadsState>((set, get) => ({
                 )
               : new Set(
                   data
-                    .filter((thread) => thread.p_is_started)
+                    .filter((thread) => thread.p_creator)
                     .map((thread) => thread.id)
                 );
 

@@ -173,6 +173,7 @@ const SearchList = ({
 
       {result.length > 0 ? (
         <FlatList<any>
+          keyboardShouldPersistTaps="handled"
           style={styles.list}
           data={result}
           keyExtractor={(item) => item.id.toString()}

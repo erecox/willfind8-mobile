@@ -24,10 +24,8 @@ import SelectInput from "@/components/inputs/SelectInput";
 import LoadingBar from "@/components/ui/cards/LoadingBar";
 import { useFilterStore } from "@/hooks/store/filterStore";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { useFocusEffect } from "expo-router";
 import React from "react";
 import api from "@/lib/apis/api";
-import usePostStore from "@/hooks/store/useFetchPosts";
 
 // Define types for filters
 interface Filter {
@@ -52,22 +50,16 @@ interface Advert {
   auth_field: string;
   pictures: string[];
   country_code: string | null;
-  negotiable: boolean;
-  permanent: boolean;
-  accept_terms: boolean;
+  negotiable: 0 | 1;
+  permanent: 0 | 1;
+  accept_terms: 0 | 1;
   tags: string[];
   cf: Record<string, any>;
 }
 
 export default function AddScreen() {
-  const { refreshUserData, user } = useAuth();
+  const { user } = useAuth();
   const [requestLoading, setRequestLoading] = useState(false);
-  const { addToSavedPost } = usePostStore();
-  useFocusEffect(
-    useCallback(() => {
-      refreshUserData();
-    }, [refreshUserData])
-  );
 
   const {
     dynamicFilters,
@@ -96,7 +88,9 @@ export default function AddScreen() {
   const buildValidationSchema = () => {
     const schema: Record<string, any> = {
       title: Yup.string().required("Title is required"),
-      description: Yup.string().required("Description is required"),
+      description: Yup.string()
+        .min(20, "Description must be at least 10 characters")
+        .required("Description is required"),
       permanent: Yup.boolean(),
       price: Yup.string().required("Price is required"),
       email: Yup.string().email("Invalid email").required("Email is required"),
@@ -145,9 +139,9 @@ export default function AddScreen() {
       auth_field: "email",
       pictures: [],
       country_code: null,
-      negotiable: false,
-      permanent: false,
-      accept_terms: false,
+      negotiable: 0,
+      permanent: 0,
+      accept_terms: 0,
       tags: [],
       cf: dynamicFilters.reduce(
         (acc, filter) => ({
@@ -293,14 +287,18 @@ export default function AddScreen() {
               <DescriptionInput
                 inputRef={inputRef}
                 value={formik.values.description}
-                onChange={(value: string) =>
-                  formik.setFieldValue("description", value)
-                }
+                onChange={(value: string) => {
+                  formik.setFieldTouched("description", true);
+                  formik.setFieldValue("description", value);
+                }}
                 errorMessage={
                   (formik.touched.description && formik.errors.description) ||
                   ""
                 }
-                onBlur={() => inputRef.current?.blur()}
+                onBlur={() => {
+                  inputRef.current?.blur();
+                  formik.handleBlur("description");
+                }}
               />
               {dynamicFilters.map((filter) => (
                 <View key={filter.id} style={styles.filterContainer}>
@@ -400,7 +398,7 @@ export default function AddScreen() {
             </View>
             <CheckBox
               title="Mark this listing as permanent"
-              checked={formik.values.permanent}
+              checked={!!formik.values.permanent}
               containerStyle={{ marginStart: 0, marginEnd: 0 }}
               onPress={() =>
                 formik.setFieldValue("permanent", !formik.values.permanent)
@@ -418,16 +416,15 @@ export default function AddScreen() {
                   </Text>
                 </Text>
               }
-              checked={formik.values.accept_terms}
+              checked={!!formik.values.accept_terms}
               containerStyle={{
                 marginStart: 0,
                 marginEnd: 0,
-                backgroundColor: null,
               }}
               onPress={() =>
                 formik.setFieldValue(
                   "accept_terms",
-                  !formik.values.accept_terms
+                  formik.values.accept_terms ? 0 : 1
                 )
               }
             />

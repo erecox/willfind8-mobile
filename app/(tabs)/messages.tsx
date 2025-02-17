@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 import ProfileListItem from "@/components/ui/cards/ProfileListItem";
-import { Thread, useThreadsStore } from "@/hooks/store/useFetchThreads";
+import { ThreadMessage, useThreadsStore } from "@/hooks/store/useFetchThreads";
 import { EmptyListingCard } from "@/components/ui/cards/EmptyListingCard";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import React from "react";
@@ -33,7 +33,7 @@ export default function MessagesScreen() {
   useFocusEffect(
     useCallback(() => {
       refreshUserData();
-    }, [refreshUserData])
+    }, [])
   );
 
   useEffect(() => {
@@ -46,19 +46,19 @@ export default function MessagesScreen() {
     }
   }, [index, fetchThreads]);
 
-  const handleMessageClicked = (thread: Thread) => {
+  const handleMessageClicked = (thread:ThreadMessage) => {
     router.push({
       pathname: "/ads/chat",
-      params: { id: thread.id, postId: thread.post_id },
+      params: { threadId: thread.id, postId: thread.post_id },
     });
   };
 
-  const renderItem = ({ item }: { item: Thread }) => {
+  const renderItem = ({ item }: { item: ThreadMessage }) => {
     return (
       <ProfileListItem
         title={item.subject}
+        titleStyle2={{color:"black"}}
         imageUrl={item.p_creator.photo_url}
-        name={item.p_creator.name}
         message={item.latest_message?.body}
         date={item.updated_at}
         onPress={() => handleMessageClicked(item)}

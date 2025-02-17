@@ -4,6 +4,7 @@ import {
   GestureResponderEvent,
   DimensionValue,
   ViewStyle,
+  View,
 } from "react-native";
 import { Card, Text } from "@rneui/themed";
 import { TouchableOpacity } from "react-native";
@@ -43,9 +44,9 @@ export default function SimplePostCard({
 
   return (
     <TouchableOpacity activeOpacity={0.75} onPress={onPress}>
-      <Card containerStyle={styles.adItem}>
+      <View style={styles.adItem}>
         <ExpoImage
-          source={{ uri: picture.url.medium }}
+          source={{ uri: picture.url.medium}}
           style={styles.adImage}
           cachePolicy="memory" // Cache in memory for faster temporary access
           placeholder={placeholder} // Optional placeholder image for ad image
@@ -58,25 +59,26 @@ export default function SimplePostCard({
           style={styles.countLabel}
           variant={"dark"}
         />
-      </Card>
+      </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   adItem: {
-    width: 170,
+    width: 150,
+    height: 100,
     margin: 0,
     overflow: "hidden",
     borderWidth: 0,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 3,
+    shadowRadius: 3
   },
   adImage: {
-    height: 80,
     width: "100%",
+    height: "100%",
   },
   price: {
     marginTop: 5,
@@ -86,6 +88,6 @@ const styles = StyleSheet.create({
   countLabel: {
     position: "absolute",
     top: 8,
-    left: 8,
+    left: 24,
   },
 });

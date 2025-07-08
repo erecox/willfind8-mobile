@@ -1,4 +1,4 @@
-import React, { } from "react";
+import React from "react";
 import { router, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { componentsList } from "@/utils/list";
@@ -14,6 +14,8 @@ import { Heading } from "@/components/ui/heading";
 import { ChevronRightIcon, Icon } from "@/components/ui/icon";
 import useThemeMode from "@/hooks/useThemeMode";
 import { Button, ButtonText } from "@/components/ui/button";
+import { FlatList } from "react-native";
+import { Divider } from "@/components/ui/divider";
 
 cssInterop(SafeAreaView, { className: "style" });
 cssInterop(ExpoImage, { className: "style" });
@@ -52,7 +54,7 @@ const ComponentCard = ({ component, onPress }: any) => {
 const Header = () => {
   const { themeMode }: any = useThemeMode();
   return (
-    <HStack className="flex-1 max-w-[1730px] w-full mx-auto justify-between">
+    <HStack className="max-w-[1730px] w-full mx-auto justify-between">
       <VStack className="w-full md:max-w-[630px] lg:max-w-[400px] xl:max-w-[480px] mx-5 md:ml-8 mb-8 mt-10 lg:my-[44px] xl:ml-[80px] flex-1">
         <HStack
           className="rounded-full bg-background-0 py-4 px-5 mb-7 md:mb-9 lg:mb-[80px] xl:mb-[132px] items-center native:max-w-[250px] w-fit"
@@ -71,11 +73,10 @@ const Header = () => {
           <Text className="font-medium text-sm lg:text-base xl:text-lg text-typography-900">
             Powered by gluestack-ui v2
           </Text>
-        
         </HStack>
-          <Button onPress={() => router.push('/(auth)/login')}>
-            <ButtonText>Auth</ButtonText>
-          </Button>
+        <Button onPress={() => router.push("/(auth)/login")}>
+          <ButtonText>Auth</ButtonText>
+        </Button>
         <Heading className="mb-2 xl:mb-[18px] text-4xl lg:text-5xl xl:text-[56px]">
           Kitchensink app
         </Heading>
@@ -105,28 +106,15 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-background-0 relative">
-      <ScrollView>
-        <Box className="bg-background-50 flex-1">
-          <Header />
-        </Box>
-        <HStack
-          className="flex-wrap justify-center gap-x-3 gap-y-4 md:gap-x-4 lg:gap-x-7 lg:gap-y-8 py-6 px-5 md:px-8 md:pt-9 xl:pt-[90px] lg:pt-[70px] lg:px-[70px] xl:px-[100px] max-w-[1730px] mx-auto"
-        >
-          {componentsList.map((component, index) => (
-            <Box
-              key={index}
-              className="w-[160px] h-[145px] md:w-[224px] md:h-[194px] lg:w-[274px] lg:h-[244px] xl:w-[390px] xl:h-[328px]"
-            >
-              <ComponentCard
-                component={component}
-                //@ts-ignore
-                onPress={() => router.push(component.link)}
-              />
-            </Box>
-          ))}
-        </HStack>
-      </ScrollView>
+    <SafeAreaView className="flex-1 bg-background-0">
+      <FlatList
+        className="mb-[50px]"
+        ListHeaderComponent={() => <Header />}
+        numColumns={3}
+        ItemSeparatorComponent={() => <Divider />}
+        data={componentsList}
+        renderItem={({ item }) => <ComponentCard component={item} />}
+      />
     </SafeAreaView>
   );
 }

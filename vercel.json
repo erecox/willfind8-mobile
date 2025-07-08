@@ -1,0 +1,6 @@
+{
+  "buildCommand": "",
+  "outputDirectory": "dist",
+  "devCommand": "npx expo",
+  "cleanUrls": true
+}

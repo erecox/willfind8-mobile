@@ -10,7 +10,6 @@ import {
   ActionsheetItem,
   ActionsheetItemText,
 } from "@/components/ui/actionsheet";
-import { examples } from "@/components/docs/examples/actionsheet";
 import { Box } from "@/components/ui/box";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
@@ -21,10 +20,9 @@ export default function MessageLayout() {
   const handleClose = () => setShowActionsheet(false);
 
   return (
-
     <SafeAreaView className="flex-1 bg-background-0 relative">
       <ScrollView
-        className={`bg-background-0 ${examples?.length > 0 ? "" : "web:justify-center"}`}
+        className={`bg-background-0`}
         contentContainerClassName="px-3 pb-6"
       >
         <Box className="p-5 rounded-lg m-3 mt-5 bg-background-50 gap-5 min-h-[200px] max-w-[600px] lg:min-w-[700px] w-full self-center">
@@ -60,49 +58,6 @@ export default function MessageLayout() {
             </Actionsheet>
           </Center>
         </Box>
-
-        {examples?.length > 0 &&
-          examples.map((Example: any, index: any) => {
-            const isFunctionComponent = typeof Example.Code === "function"; // Check if Code is a function
-            return (
-              <Box
-                key={index}
-                className="p-5 border border-outline-100 rounded-lg my-2.5 gap-5 min-h-[200px] max-w-[600px] lg:min-w-[700px] w-full self-center"
-              >
-                <Text className="border-b border-outline-200 pb-2 lg:pb-3 lg:text-xl text-base">
-                  {Example.name}
-                </Text>
-
-                {Example.subExamples ? (
-                  Example.subExamples.map((subExample: any, index: number) => {
-                    const isFunctionalComponent =
-                      typeof subExample.Code === "function";
-                    return (
-                      <Box
-                        key={index}
-                        className="p-5 bg-background-50 rounded-lg gap-5 min-h-[200px] max-w-[600px] lg:min-w-[660px] w-full self-center"
-                      >
-                        <Text className="border-b border-outline-200 pb-1 lg:pb-2 lg:text-lg text-sm">
-                          {subExample.subName}
-                        </Text>
-                        <Center className="flex-1">
-                          {isFunctionalComponent ? (
-                            <subExample.Code />
-                          ) : (
-                            subExample.Code
-                          )}
-                        </Center>
-                      </Box>
-                    );
-                  })
-                ) : (
-                  <Center className="flex-1">
-                    {isFunctionComponent ? <Example.Code /> : Example.Code}
-                  </Center>
-                )}
-              </Box>
-            );
-          })}
       </ScrollView>
     </SafeAreaView>
   );

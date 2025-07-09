@@ -1,6 +1,7 @@
 import React from "react";
 import { Tabs } from "@/components/layout/tabs";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Icon } from "@/components/ui/icon";
+import { Grid2X2Icon, GripIcon, Home, MessagesSquareIcon, PlusSquareIcon, UserIcon } from "lucide-react-native";
 
 export default function TabsLayout() {
   return (
@@ -11,7 +12,7 @@ export default function TabsLayout() {
           title: "Home",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <IconSymbol name="house.fill" color={color} />
+            <Icon as={Home} color={color} />
           ),
         }}
       />
@@ -22,7 +23,7 @@ export default function TabsLayout() {
           title: "Categories",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <IconSymbol name="square.grid.2x2.fill" color={color} />
+            <Icon as={Grid2X2Icon} color={color} />
           ),
         }}
       />
@@ -33,7 +34,7 @@ export default function TabsLayout() {
           title: "New Ad",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <IconSymbol name="plus.app.fill" color={color} />
+            <Icon as={PlusSquareIcon} color={color} />
           ),
         }}
       />
@@ -44,7 +45,7 @@ export default function TabsLayout() {
           title: "Messages",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <IconSymbol name="message.fill" color={color} />
+            <Icon as={MessagesSquareIcon} color={color} />
           ),
         }}
       />
@@ -55,7 +56,7 @@ export default function TabsLayout() {
           title: "Account",
           headerShown: false,
           tabBarIcon: ({ color }) => (
-            <IconSymbol name="person.fill" color={color} />
+            <Icon as={UserIcon} color={color} />
           ),
         }}
       />

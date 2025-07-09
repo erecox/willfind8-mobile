@@ -34,7 +34,8 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
@@ -44,9 +45,6 @@
       "eas": {
         "projectId": "50e78cd9-eacc-48f2-9c70-e04eb0009a0a"
       }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
     },
     "updates": {
       "url": "https://u.expo.dev/8d16a046-45ac-43e4-b730-33c7a0d6d1ea"

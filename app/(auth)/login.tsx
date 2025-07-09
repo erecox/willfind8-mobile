@@ -17,11 +17,13 @@ import { EyeIcon, EyeOffIcon } from "lucide-react-native";
 import { Box } from "@/components/ui/box";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Heading } from "@/components/ui/heading";
 import { Image } from "@/components/ui/image";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useAuthStore } from "@/hooks/useAuth";
+import { router } from "expo-router";
+import { SafeAreaView } from "@/components/ui/safe-area-view";
 
 const LoginSchema = Yup.object().shape({
   loginId: Yup.string().required("Login ID is required."),
@@ -37,6 +39,8 @@ export default function LoginLayout() {
   const [showPassword1, setShowPassword1] = React.useState(false);
   const [showPassword2, setShowPassword2] = React.useState(false);
 
+  const { setUser } = useAuthStore();
+
   const formik = useFormik({
     initialValues: {
       loginId: "",
@@ -47,6 +51,9 @@ export default function LoginLayout() {
     onSubmit: (values) => {
       // handle login here
       console.log("values", values);
+      setUser({ ...values, id: 1, name: 'Eric Mensah', phone: values.loginId, email: values.loginId });
+      if (router.canGoBack()) router.back();
+      else router.push("/(tabs)");
     },
   });
 
@@ -171,6 +178,7 @@ export default function LoginLayout() {
           <Button
             className="mt-8 w-full"
             size="sm"
+            disabled={!formik.isValid}
             onPress={formik.handleSubmit as any}
           >
             <ButtonText>Login</ButtonText>

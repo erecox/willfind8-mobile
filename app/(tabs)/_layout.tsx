@@ -2,19 +2,18 @@ import React, { useState } from "react";
 import { Tabs } from "@/components/layout/tabs";
 import { FavouriteIcon, Icon } from "@/components/ui/icon";
 import { Grid2X2Icon, Home, PlusSquareIcon, UserIcon } from "lucide-react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useAuthStore } from "@/hooks/useAuth";
 import { AuthAlert } from "@/components/custom/auth-alert";
 
 export default function TabsLayout() {
-  const inserts = useSafeAreaInsets();
   const { user } = useAuthStore();
   const [showAuthAlert, setAuthAlert] = useState(false);
 
   return (
     <>
-      <Tabs safeAreaInsets={inserts}
+      <Tabs
+        screenOptions={{ headerShown: false }}
         screenListeners={{
           tabPress: (e) => {
             if (e.target?.split("-")[0] === "add-ad") {
@@ -26,8 +25,8 @@ export default function TabsLayout() {
               return setAuthAlert(true);
             }
           },
-        }}
-        screenOptions={{ headerShown: false }}>
+        }} >
+
         <Tabs.Screen
           name="index"
           options={{

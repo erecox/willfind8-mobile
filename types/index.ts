@@ -9,8 +9,13 @@ export type Product = {
   city: string;
 };
 
+export type AccountProvider = 'app' | 'google' | 'facebook';
+
 export type User = {
   id: number;
+  provider?: AccountProvider;
+  google_id?: string | null;
+  facebook_id?:string | null;
   email?: string;
   phone: string;
   name: string;

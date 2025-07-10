@@ -1,19 +1,16 @@
 import React from "react";
 import {
   FormControl,
-  FormControlHelper,
   FormControlLabel,
   FormControlLabelText,
-  FormControlHelperText,
   FormControlError,
   FormControlErrorText,
   FormControlErrorIcon,
 } from "@/components/ui/form-control";
-import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input";
+import { Input, InputField } from "@/components/ui/input";
 import { AlertCircleIcon } from "@/components/ui/icon";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
-import { EyeIcon, EyeOffIcon } from "lucide-react-native";
 import { Box } from "@/components/ui/box";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
@@ -24,20 +21,14 @@ import * as Yup from "yup";
 import { useAuthStore } from "@/hooks/useAuth";
 import { router } from "expo-router";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
+import { GoogleLoginButton } from "@/components/custom/google-login-button";
+import { FacebookLoginButton } from "@/components/custom/facebook-login-button";
 
 const LoginSchema = Yup.object().shape({
   loginId: Yup.string().required("Login ID is required."),
-  password: Yup.string()
-    .min(6, "Atleast 6 characters are required.")
-    .required("Password is required."),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password")], "Passwords do not match.")
-    .required("Confirm Password is required."),
 });
 
 export default function LoginLayout() {
-  const [showPassword1, setShowPassword1] = React.useState(false);
-  const [showPassword2, setShowPassword2] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
 
   const { setUser } = useAuthStore();
@@ -102,89 +93,13 @@ export default function LoginLayout() {
             )}
           </FormControl>
 
-          <FormControl isInvalid={!!(formik.touched.password && formik.errors.password)} className="w-full mt-6">
-            <FormControlLabel>
-              <FormControlLabelText size="sm">
-                Password
-              </FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type={showPassword1 ? "text" : "password"}
-                value={formik.values.password}
-                onChangeText={formik.handleChange("password")}
-                onBlur={formik.handleBlur("password")}
-                placeholder="Enter your password"
-              />
-              <InputSlot
-                onPress={() => setShowPassword1(!showPassword1)}
-                className="mr-3"
-              >
-                <InputIcon as={showPassword1 ? EyeIcon : EyeOffIcon} />
-              </InputSlot>
-            </Input>
-
-            <FormControlHelper>
-              <FormControlHelperText size="xs">
-                Must be atleast 6 characters.
-              </FormControlHelperText>
-            </FormControlHelper>
-
-            {formik.touched.password && formik.errors.password && (
-              <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
-                <FormControlErrorText size="xs">
-                  {formik.errors.password}
-                </FormControlErrorText>
-              </FormControlError>
-            )}
-          </FormControl>
-
-          <FormControl isInvalid={!!(formik.touched.confirmPassword && formik.errors.confirmPassword)} className="mt-6 w-full">
-            <FormControlLabel>
-              <FormControlLabelText size="sm">
-                Confirm Password
-              </FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type={showPassword2 ? "text" : "password"}
-                value={formik.values.confirmPassword}
-                onChangeText={formik.handleChange("confirmPassword")}
-                onBlur={formik.handleBlur("confirmPassword")}
-                placeholder="Enter password again"
-              />
-              <InputSlot
-                onPress={() => setShowPassword2(!showPassword2)}
-                className="mr-3"
-              >
-                <InputIcon as={showPassword2 ? EyeIcon : EyeOffIcon} />
-              </InputSlot>
-            </Input>
-
-            <FormControlHelper>
-              <FormControlHelperText size="xs">
-                Must be same as password.
-              </FormControlHelperText>
-            </FormControlHelper>
-
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-              <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
-                <FormControlErrorText size="xs">
-                  {formik.errors.confirmPassword}
-                </FormControlErrorText>
-              </FormControlError>
-            )}
-          </FormControl>
-
           <Button
             className="mt-8 w-full"
             size="sm"
             disabled={!formik.isValid || submitting}
             onPress={formik.handleSubmit as any}
           >
-            <ButtonText>Login</ButtonText>
+            <ButtonText>Continue</ButtonText>
           </Button>
 
           <Button
@@ -194,6 +109,10 @@ export default function LoginLayout() {
           >
             <ButtonText>Create An Account</ButtonText>
           </Button>
+        </Box>
+        <Box className="p-5 rounded-lg">
+          <GoogleLoginButton className="mt-3" />
+          <FacebookLoginButton className="mt-3" />
         </Box>
       </ScrollView>
     </SafeAreaView>

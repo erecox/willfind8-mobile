@@ -6,9 +6,10 @@ import { Pressable } from "@/components/ui/pressable";
 import { HStack } from "@/components/ui/hstack";
 import { Box } from "@/components/ui/box";
 import { VStack } from "@/components/ui/vstack";
-import { MapPinIcon } from "lucide-react-native";
-import { Icon } from "@/components/ui/icon";
+import { MapPinIcon, PhoneCallIcon } from "lucide-react-native";
+import { Icon, MessageCircleIcon } from "@/components/ui/icon";
 import { Product } from "@/types";
+import { Button, ButtonIcon } from "@/components/ui/button";
 
 type ProductCardProps = {
   product: Product;
@@ -18,10 +19,10 @@ type ProductCardProps = {
 export function ProductCard({ product, onPress }: ProductCardProps) {
   return (
     <Pressable
-      className={`flex-1  bg-background-50 dark:bg-background-700 w-full h-full sm:gap-2 gap-1 flex flex-col pb-2 lg:p-4`}
+      className={`flex-1  bg-background-0 dark:bg-background-700 w-full h-full sm:gap-2 gap-1 flex flex-col pb-2 lg:p-4`}
       onPress={onPress}
     >
-      <Box className="bg-background-100 dark:bg-background-800 px-3 lg:px-6 py-[14px] lg:py-7 aspect-[17/12]">
+      <Box className="bg-background-50 dark:bg-background-800 px-3 lg:px-6 py-[14px] lg:py-7 aspect-[17/12]">
         <ExpoImage
           source={product.image}
           alt={product.name}
@@ -31,7 +32,7 @@ export function ProductCard({ product, onPress }: ProductCardProps) {
       </Box>
       <VStack className="px-3 gap-1">
         <HStack className="justify-between">
-          <Text className="text-typography-900 dark:text-typography-400 font-medium sm:text-base text-sm lg:text-xl">
+          <Text numberOfLines={2} className="text-typography-900 dark:text-typography-400 font-medium sm:text-base text-sm lg:text-xl">
             {product.name}
           </Text>
         </HStack>
@@ -49,36 +50,42 @@ export function ProductCard({ product, onPress }: ProductCardProps) {
   );
 }
 
-
-
 export function ProductCardLandscape({ product, onPress }: ProductCardProps) {
   return (
     <Pressable
-      className={`flex-1  bg-background-50 dark:bg-background-700 w-full h-full sm:gap-2 gap-1 flex flex-row pb-2 lg:p-4`}
       onPress={onPress}
+      className="flex flex-row w-full rounded-xl overflow-hidden bg-background-0 dark:bg-background-700 p-3 space-x-3"
     >
-      <Box className="bg-background-100 dark:bg-background-800 px-3 lg:px-6 py-[14px] lg:py-7 aspect-[17/12]">
+      {/* Image Section */}
+      <Box className="w-32 h-24 bg-background-50 dark:bg-background-800 rounded-md overflow-hidden">
         <ExpoImage
           source={product.image}
           alt={product.name}
-          className={`flex-1 rounded bg-background-500`}
+          className="w-full h-full object-cover"
+          contentFit="cover"
           cachePolicy="memory-disk"
         />
       </Box>
-      <VStack className="px-3 gap-1">
-        <HStack className="justify-between">
-          <Text className="text-typography-900 dark:text-typography-400 font-medium sm:text-base text-sm lg:text-xl">
-            {product.name}
-          </Text>
-        </HStack>
-        <Text className="text-typography-900 dark:text-typography-400 font-medium sm:text-base text-sm lg:text-l">
-          {"GHC"} {product.price}
+
+      {/* Details Section */}
+      <VStack className="flex-1 px-2 gap-1">
+        <Text numberOfLines={2} className="text-sm font-semibold text-typography-900 dark:text-typography-100">
+          {product.name}
         </Text>
-        <HStack className="gap-1">
-          <Icon className="dark:color-gray-400" size="xs" as={MapPinIcon} />
-          <Text className="text-typography-900 dark:text-typography-400 font-small sm:text-base text-xs">
+
+        <Text className="text-sm font-medium text-typography-900 dark:text-typography-300">
+          GHC {product.price}
+        </Text>
+
+        <HStack className="items-center gap-1">
+          <Icon as={MapPinIcon} size="xs" className="text-typography-500 dark:text-typography-400" />
+          <Text className="text-xs text-typography-500 dark:text-typography-400">
             {product.city}
           </Text>
+        </HStack>
+        <HStack className="items-center gap-1 justify-end">
+          <Button size="xs"><ButtonIcon as={PhoneCallIcon} /></Button>
+          <Button size="xs" variant="outline"><ButtonIcon as={MessageCircleIcon} /></Button>
         </HStack>
       </VStack>
     </Pressable>

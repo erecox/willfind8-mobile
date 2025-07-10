@@ -9,7 +9,12 @@ import {
   FormControlErrorText,
   FormControlErrorIcon,
 } from "@/components/ui/form-control";
-import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input";
+import {
+  Input,
+  InputField,
+  InputSlot,
+  InputIcon,
+} from "@/components/ui/input";
 import { AlertCircleIcon } from "@/components/ui/icon";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
@@ -25,21 +30,19 @@ import { useAuthStore } from "@/hooks/useAuth";
 import { router } from "expo-router";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
 
-const LoginSchema = Yup.object().shape({
-  loginId: Yup.string().required("Login ID is required."),
+const SignUpSchema = Yup.object().shape({
+  loginId: Yup.string().required("Email or phone is required."),
   password: Yup.string()
-    .min(6, "Atleast 6 characters are required.")
+    .min(6, "At least 6 characters are required.")
     .required("Password is required."),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords do not match.")
-    .required("Confirm Password is required."),
+    .required("Please confirm your password."),
 });
 
-export default function LoginLayout() {
+export default function SignUpScreen() {
   const [showPassword1, setShowPassword1] = React.useState(false);
   const [showPassword2, setShowPassword2] = React.useState(false);
-  const [submitting, setSubmitting] = React.useState(false);
-
   const { setUser } = useAuthStore();
 
   const formik = useFormik({
@@ -48,44 +51,51 @@ export default function LoginLayout() {
       password: "",
       confirmPassword: "",
     },
-    validationSchema: LoginSchema,
+    validationSchema: SignUpSchema,
     onSubmit: (values) => {
-      setSubmitting(true);
-      // handle login here
-      console.log("values", values);
-      setUser({ ...values, id: 1, name: 'Eric Mensah', phone: values.loginId, email: values.loginId });
-      if (router.canGoBack()) router.back();
-      else router.push("/(tabs)");
+      console.log("Sign up values", values);
+      setUser({
+        id: 1,
+        name: "Eric Mensah",
+        email: values.loginId,
+        phone: values.loginId,
+        ...values,
+      });
+
+      router.push("/(tabs)");
     },
   });
 
   return (
     <SafeAreaView className="flex-1">
       <ScrollView
-        className={`bg-background-50`}
+        className="bg-background-50"
         contentContainerClassName="px-5 pt-10"
       >
         <Box className="p-5 rounded-lg bg-background-0">
           <Center className="mb-10">
-            <Image alt="Logo" source={require('@/assets/images/icon.png')} />
+            <Image alt="Logo" source={require("@/assets/images/icon.png")} />
             <Heading size="md" className="text-center">
-              Welcome to Willfind8
+              Create Your Willfind8 Account
             </Heading>
             <Text className="text-center mt-3">
-              Type your e-mail or phone number to log in or create a Willfind8 account.
+              Sign up with your email or phone number to get started.
             </Text>
           </Center>
 
-          <FormControl isInvalid={!!(formik.touched.loginId && formik.errors.loginId)} className="w-full">
+          {/* Login ID Field */}
+          <FormControl
+            isInvalid={!!(formik.touched.loginId && formik.errors.loginId)}
+            className="w-full"
+          >
             <FormControlLabel>
               <FormControlLabelText size="sm">
-                Login ID
+                Email or Phone
               </FormControlLabelText>
             </FormControlLabel>
             <Input>
               <InputField
-                type={"text"}
-                keyboardType="email-address"
+                type="text"
                 value={formik.values.loginId}
                 onChangeText={formik.handleChange("loginId")}
                 onBlur={formik.handleBlur("loginId")}
@@ -102,7 +112,11 @@ export default function LoginLayout() {
             )}
           </FormControl>
 
-          <FormControl isInvalid={!!(formik.touched.password && formik.errors.password)} className="w-full mt-6">
+          {/* Password Field */}
+          <FormControl
+            isInvalid={!!(formik.touched.password && formik.errors.password)}
+            className="w-full mt-6"
+          >
             <FormControlLabel>
               <FormControlLabelText size="sm">
                 Password
@@ -123,13 +137,11 @@ export default function LoginLayout() {
                 <InputIcon as={showPassword1 ? EyeIcon : EyeOffIcon} />
               </InputSlot>
             </Input>
-
             <FormControlHelper>
               <FormControlHelperText size="xs">
-                Must be atleast 6 characters.
+                Must be at least 6 characters.
               </FormControlHelperText>
             </FormControlHelper>
-
             {formik.touched.password && formik.errors.password && (
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
@@ -140,7 +152,13 @@ export default function LoginLayout() {
             )}
           </FormControl>
 
-          <FormControl isInvalid={!!(formik.touched.confirmPassword && formik.errors.confirmPassword)} className="mt-6 w-full">
+          {/* Confirm Password Field */}
+          <FormControl
+            isInvalid={
+              !!(formik.touched.confirmPassword && formik.errors.confirmPassword)
+            }
+            className="mt-6 w-full"
+          >
             <FormControlLabel>
               <FormControlLabelText size="sm">
                 Confirm Password
@@ -161,13 +179,11 @@ export default function LoginLayout() {
                 <InputIcon as={showPassword2 ? EyeIcon : EyeOffIcon} />
               </InputSlot>
             </Input>
-
             <FormControlHelper>
               <FormControlHelperText size="xs">
-                Must be same as password.
+                Should match the password above.
               </FormControlHelperText>
             </FormControlHelper>
-
             {formik.touched.confirmPassword && formik.errors.confirmPassword && (
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
@@ -178,21 +194,14 @@ export default function LoginLayout() {
             )}
           </FormControl>
 
+          {/* Submit Button */}
           <Button
             className="mt-8 w-full"
             size="sm"
-            disabled={!formik.isValid || submitting}
+            disabled={!formik.isValid}
             onPress={formik.handleSubmit as any}
           >
-            <ButtonText>Login</ButtonText>
-          </Button>
-
-          <Button
-            variant="outline"
-            className="mt-8 w-full border-dashed"
-            size="sm"
-          >
-            <ButtonText>Create An Account</ButtonText>
+            <ButtonText>Create Account</ButtonText>
           </Button>
         </Box>
       </ScrollView>

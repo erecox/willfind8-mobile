@@ -17,7 +17,20 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" options={{ headerShown: false }} />
-            <Stack.Screen name="(account)" options={{ headerShown: false }} />
+
+            {/* Account Screens */}
+            <Stack.Screen name="(account)/about-us" options={{title:"About Us"}} />
+            <Stack.Screen name="(account)/business-information" options={{title:"Business Information"}} />
+            <Stack.Screen name="(account)/customer-support" options={{title:"Customer Support"}} />
+            <Stack.Screen name="(account)/faq" options={{title:"Frequently Asked Question"}} />
+            <Stack.Screen name="(account)/following" options={{title:"Followed Sellers"}} />
+            <Stack.Screen name="(account)/messages" options={{title:"Messages"}} />
+            <Stack.Screen name="(account)/my-ads" options={{title:"My Ads"}} />
+            <Stack.Screen name="(account)/payment-settings" options={{title:"Payment Settings"}} />
+            <Stack.Screen name="(account)/recently-viewed" options={{title:"Recently Viewed"}} />
+            <Stack.Screen name="(account)/reviews" options={{title:"Ratings & Reviews"}} />
+            <Stack.Screen name="(account)/settings" options={{title:"Settings"}} />
+            <Stack.Screen name="(account)/terms" options={{title:"Terms of Use"}} />
           </Stack> 
         </LoaderProvider>
       </GluestackUIProvider>

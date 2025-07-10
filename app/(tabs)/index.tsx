@@ -18,6 +18,7 @@ import { ChevronUp, Grid2X2Icon, ListIcon } from "lucide-react-native";
 import { useLoading } from "@/hooks/useLoading";
 import { HStack } from "@/components/ui/hstack";
 import { Heading } from "@/components/ui/heading";
+import { router } from "expo-router";
 
 interface HeaderProps {
   translateY: any;
@@ -87,10 +88,10 @@ export default function HomeScreen() {
             )
           }
           ListHeaderComponent={() => (
-            <HStack className="justify-between">
+            <HStack className="justify-between mb-1">
               <Heading size="sm">Trending</Heading>
               <TouchableOpacity
-                className="p-1 bg-secondary-500"
+                className="p-1 bg-secondary-500 dark:bg-background-500 rounded"
                 onPress={toggleColumns}
               >
                 {columns === 2 ? (
@@ -129,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({ translateY, logoOpacity }) => {
         <Animated.View style={{ opacity: logoOpacity }}>
           <LogoBar />
         </Animated.View>
-        <SearchBox />
+        <SearchBox onPress={()=>router.push('/(account)/about-us')} />
       </VStack>
     </Animated.View>
   );

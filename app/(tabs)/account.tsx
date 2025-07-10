@@ -58,7 +58,7 @@ export default function AccountLayout() {
         <Card className="p-5 rounded-lg">
           <TouchableOpacity onPress={handleSettingPress} activeOpacity={.5}>
             <Center>
-              <Avatar size="lg">
+              <Avatar size="2xl">
                 <AvatarImage source={{ uri: 'https://gluestack.github.io/public-blog-video-assets/yoga.png', }}
                   alt="image" />
               </Avatar>

@@ -1,26 +1,30 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { VStack } from "@/components/ui/vstack";
-import { Animated, FlatList, Platform, View } from "react-native";
+import { Animated, FlatList, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { SearchBox } from "@/components/custom/search-box";
 import { LogoBar } from "@/components/custom/logo-bar";
-import { ProductCard } from "@/components/custom/product-card";
+import {
+  ProductCard,
+  ProductCardLandscape,
+} from "@/components/custom/product-card";
 
 import products from "@/constants/mockup/products.json";
 import { cssInterop } from "nativewind";
 import { Image } from "expo-image";
 import { Fab } from "@/components/ui/fab";
 import { Icon } from "@/components/ui/icon";
-import { ChevronUp } from "lucide-react-native";
+import { ChevronUp, Grid2X2Icon, ListIcon } from "lucide-react-native";
 import { useLoading } from "@/hooks/useLoading";
+import { HStack } from "@/components/ui/hstack";
+import { Heading } from "@/components/ui/heading";
 
 interface HeaderProps {
   translateY: any;
   logoOpacity: any;
 }
 
-
-cssInterop(Image, { className: 'style' });
+cssInterop(Image, { className: "style" });
 
 export default function HomeScreen() {
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -40,22 +44,31 @@ export default function HomeScreen() {
     extrapolate: "clamp",
   });
 
-  setInterval(() => {
-    loader?.hideLoading();
-  }, 6000);
+  const showFab = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0, 1],
+    extrapolate: "clamp",
+  });
+
+  const [columns, setColumns] = useState(2);
+
+  const toggleColumns = () => {
+    setColumns(columns === 2 ? 1 : 2);
+  };
 
   return (
     <SafeAreaView>
-      <VStack className="flex-1 dark:bg-background-900 bg-background-300">
+      <VStack className="flex-1 dark:bg-background-900 bg-background-200">
         <Header translateY={translateY} logoOpacity={hideLogo} />
         <Animated.FlatList
           ref={scrollRef}
-          contentContainerClassName="pt-[100px] px-[10] pb-[10px] gap-y-[2px]"
-          className={`${Platform.OS === 'ios' ? "mb-[50px]" : ''} flex-1 py-[10]`}
-          numColumns={2}
-          columnWrapperClassName={"gap-x-[2px]"}
+          contentContainerClassName="pt-[100px] px-[10] pb-[10px] gap-[2px] bg-background-50"
+          className={`flex-1 py-[10]`}
           initialNumToRender={10}
+          key={columns} // Important to force layout change
+          numColumns={columns}
           data={products}
+          extraData={columns}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             {
@@ -66,26 +79,52 @@ export default function HomeScreen() {
               },
             }
           )}
-
-          renderItem={({ item }) => <ProductCard product={item} />}
+          renderItem={({ item }) =>
+            columns === 2 ? (
+              <ProductCard product={item} />
+            ) : (
+              <ProductCardLandscape product={item} />
+            )
+          }
+          ListHeaderComponent={() => (
+            <HStack className="justify-between">
+              <Heading size="sm">Trending</Heading>
+              <TouchableOpacity
+                className="p-1 bg-secondary-500"
+                onPress={toggleColumns}
+              >
+                {columns === 2 ? (
+                  <Icon className="color-white" size="lg" as={ListIcon} />
+                ) : (
+                  <Icon className="color-white" size="lg" as={Grid2X2Icon} />
+                )}
+              </TouchableOpacity>
+            </HStack>
+          )}
         />
       </VStack>
-      <Fab
-        onPress={loader?.showLoading}
-        className={`${Platform.OS === 'ios' ? 'bottom-[100px]' : 'bottom-[60px]'} sm:right-10 right-6 p-4 z-0`}
-      >
-        <Icon
-          as={ChevronUp}
-          className="text-typography-0"
-        />
-      </Fab>
+      <Animated.View style={{ opacity: showFab }}>
+        <Fab
+          onPress={() =>
+            scrollRef.current?.scrollToOffset({ offset: 0, animated: true })
+          }
+          className={`sm:right-10 right-6 p-4 z-0`}
+        >
+          <Icon as={ChevronUp} className="text-typography-0" />
+        </Fab>
+      </Animated.View>
     </SafeAreaView>
   );
 }
 
 const Header: React.FC<HeaderProps> = ({ translateY, logoOpacity }) => {
   return (
-    <Animated.View style={[{ position: 'absolute', zIndex: 100, left: 0, right: 0, top: 0 }, { transform: [{ translateY }] }]}>
+    <Animated.View
+      style={[
+        { position: "absolute", zIndex: 100, left: 0, right: 0, top: 0 },
+        { transform: [{ translateY }] },
+      ]}
+    >
       <VStack className="w-full h-[105px] p-[10px] border-10 bg-background-0 dark:bg-background-900">
         <Animated.View style={{ opacity: logoOpacity }}>
           <LogoBar />

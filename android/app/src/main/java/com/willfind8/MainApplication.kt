@@ -1,4 +1,4 @@
-package com.ericmensah.willfind8
+package com.willfind8
 
 import android.app.Application
 import android.content.res.Configuration

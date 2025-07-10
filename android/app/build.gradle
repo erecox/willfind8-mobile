@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.ericmensah.willfind8'
+    namespace 'com.willfind8'
     defaultConfig {
-        applicationId 'com.ericmensah.willfind8'
+        applicationId 'com.willfind8'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -5,6 +5,13 @@ import { StatusBar } from "expo-status-bar";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import useThemeMode from "@/hooks/useThemeMode";
 import { LoaderProvider } from "@/hooks/useLoading";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+
+GoogleSignin.configure({
+  webClientId:"181055438274-h74907ar84b959aq09it4f95pkse0318.apps.googleusercontent.com",
+  scopes: ["profile", "email"],
+  offlineAccess: true,
+});
 
 export default function RootLayout() {
   const { themeMode } = useThemeMode();
@@ -34,7 +41,7 @@ export default function RootLayout() {
           </Stack> 
         </LoaderProvider>
       </GluestackUIProvider>
-      <StatusBar />
+      <StatusBar style={themeMode} />
     </>
   );
 }

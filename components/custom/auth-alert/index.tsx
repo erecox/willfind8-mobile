@@ -21,7 +21,7 @@ interface AuthAlertProps {
 
 export const AuthAlert = ({ onClose, showAlertDialog }: AuthAlertProps) => {
     const handleLoginPress = () => {
-        router.push('/signin');
+        router.push('/(auth)/login');
         onClose();
     }
     return (<>

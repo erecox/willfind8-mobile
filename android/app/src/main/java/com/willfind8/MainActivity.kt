@@ -1,4 +1,4 @@
-package com.ericmensah.willfind8
+package com.willfind8
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

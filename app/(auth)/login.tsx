@@ -24,27 +24,31 @@ import * as Yup from "yup";
 import { useAuthStore } from "@/hooks/useAuth";
 import { router } from "expo-router";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
+import { useLocalSearchParams } from "expo-router/build/hooks";
+import { GoogleLoginButton } from "@/components/custom/google-login-button";
 
 const LoginSchema = Yup.object().shape({
   loginId: Yup.string().required("Login ID is required."),
   password: Yup.string()
     .min(6, "Atleast 6 characters are required.")
     .required("Password is required."),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password")], "Passwords do not match.")
-    .required("Confirm Password is required."),
 });
 
 export default function LoginLayout() {
+  const { loginId: signInLoginId } = useLocalSearchParams();
   const [showPassword1, setShowPassword1] = React.useState(false);
-  const [showPassword2, setShowPassword2] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
 
   const { setUser } = useAuthStore();
 
+  const handleCreateAccount = () => router.push({
+    'pathname': '/signup',
+    params: { loginId: formik.values.loginId }
+  });
+
   const formik = useFormik({
     initialValues: {
-      loginId: "",
+      loginId: signInLoginId?.toString() || "",
       password: "",
       confirmPassword: "",
     },
@@ -140,44 +144,6 @@ export default function LoginLayout() {
             )}
           </FormControl>
 
-          <FormControl isInvalid={!!(formik.touched.confirmPassword && formik.errors.confirmPassword)} className="mt-6 w-full">
-            <FormControlLabel>
-              <FormControlLabelText size="sm">
-                Confirm Password
-              </FormControlLabelText>
-            </FormControlLabel>
-            <Input>
-              <InputField
-                type={showPassword2 ? "text" : "password"}
-                value={formik.values.confirmPassword}
-                onChangeText={formik.handleChange("confirmPassword")}
-                onBlur={formik.handleBlur("confirmPassword")}
-                placeholder="Enter password again"
-              />
-              <InputSlot
-                onPress={() => setShowPassword2(!showPassword2)}
-                className="mr-3"
-              >
-                <InputIcon as={showPassword2 ? EyeIcon : EyeOffIcon} />
-              </InputSlot>
-            </Input>
-
-            <FormControlHelper>
-              <FormControlHelperText size="xs">
-                Must be same as password.
-              </FormControlHelperText>
-            </FormControlHelper>
-
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-              <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
-                <FormControlErrorText size="xs">
-                  {formik.errors.confirmPassword}
-                </FormControlErrorText>
-              </FormControlError>
-            )}
-          </FormControl>
-
           <Button
             className="mt-8 w-full"
             size="sm"
@@ -188,12 +154,16 @@ export default function LoginLayout() {
           </Button>
 
           <Button
+            onPress={handleCreateAccount}
             variant="outline"
             className="mt-8 w-full border-dashed"
             size="sm"
           >
             <ButtonText>Create An Account</ButtonText>
           </Button>
+        </Box>
+        <Box className="p-5 rounded-lg">
+          <GoogleLoginButton />
         </Box>
       </ScrollView>
     </SafeAreaView>

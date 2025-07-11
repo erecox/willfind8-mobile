@@ -26,6 +26,7 @@ import { router } from "expo-router";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { GoogleLoginButton } from "@/components/custom/google-login-button";
+import { FacebookLoginButton } from "@/components/custom/facebook-login-button";
 
 const LoginSchema = Yup.object().shape({
   loginId: Yup.string().required("Login ID is required."),
@@ -163,7 +164,7 @@ export default function LoginLayout() {
           </Button>
         </Box>
         <Box className="p-5 rounded-lg">
-          <GoogleLoginButton />
+          <FacebookLoginButton />
         </Box>
       </ScrollView>
     </SafeAreaView>

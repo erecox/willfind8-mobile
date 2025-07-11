@@ -25,13 +25,11 @@ export function GoogleLoginButton({ className }: { className?: string }) {
         }
     };
 
-    return <Button
+    return (<Button
         onPress={startSignInFlow}
         className={`bg-white rounded-lg data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
     >
         <GoogleSvg width={24} height={24} style={{ marginRight: 10 }} />
         <ButtonText>Sign in with Google</ButtonText>
-    </Button>
-
-
+    </Button>)
 }

@@ -24,8 +24,7 @@
         "backgroundColor": "#ffffff"
       },
       "backgroundColor": "#00000000",
-      "package": "com.willfind8",
-      "googleServicesFile": "./client_secret_181055438274-m9nla3ahvmvkji46me7qqitb9riqajpc.apps.googleusercontent.com.json"
+      "package": "com.willfind8"
     },
     "web": {
       "bundler": "metro",
@@ -38,6 +37,19 @@
       "expo-web-browser",
       "expo-localization",
       "expo-secure-store",
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "1481502439945416",
+          "clientToken": "fb5c688f8faf7df7ddd9774ef2a463ae",
+          "displayName": "Willfind8",
+          "scheme": "fb1481502439945416",
+          "advertiserIDCollectionEnabled": false,
+          "autoLogAppEventsEnabled": false,
+          "isAutoInitEnabled": true,
+          "iosUserTrackingPermission": "This identifier will be used to deliver personalized ads to you."
+        }
+      ],
       [
         "@react-native-google-signin/google-signin",
         {

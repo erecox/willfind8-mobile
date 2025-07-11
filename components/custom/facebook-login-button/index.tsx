@@ -1,34 +1,38 @@
-import * as WebBrowser from "expo-web-browser";
-import * as Facebook from "expo-auth-session/providers/facebook";
-import { useEffect } from "react";
 import { Button, ButtonText } from "@/components/ui/button";
-import { useAuthStore } from "@/hooks/useAuth";
 import FaceBookSvg from "@/assets/icons/icons8-facebook.svg";
-
-WebBrowser.maybeCompleteAuthSession();
+import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
+import { Alert } from "react-native";
 
 interface ButtonPropType {
-    onPress?: () => void;
     className?: string;
 }
 
-export function FacebookLoginButton({onPress,className}:ButtonPropType) {
-    const { setUser } = useAuthStore();
+export function FacebookLoginButton({ className }: ButtonPropType) {
 
-    const [request, response, promptAsync] = Facebook.useAuthRequest({
-        clientId: "<YOUR_FACEBOOK_APP_ID>",
-    });
+    const signInWithFacebook = async () => {
+        try {
+            const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+            if (result.isCancelled) {
+                return Alert.alert('User cancelled the login process');
+            }
 
-    useEffect(() => {
-        if (response?.type === "success") {
+            const data = await AccessToken.getCurrentAccessToken();
+            if (!data) {
+                return Alert.alert('Something went wrong', "Error code: 100");
+            }
 
+            const accessToken = data.accessToken.toString();
+            // Send this token to your backend
+            console.log('FB Access Token:', accessToken);
+
+        } catch (error) {
+            console.error('FB Login Error:', error);
         }
-    }, [response]);
+    };
 
     return (
         <Button
-            disabled={!request}
-            onPress={() => promptAsync()}
+            onPress={signInWithFacebook}
             className={`bg-white rounded-lg data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
         >
             <FaceBookSvg width={24} height={24} style={{ marginRight: 10 }} />
@@ -36,3 +40,4 @@ export function FacebookLoginButton({onPress,className}:ButtonPropType) {
         </Button>
     );
 }
+

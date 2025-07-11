@@ -1,7 +1,7 @@
 import { Button, ButtonText } from "@/components/ui/button";
 import FaceBookSvg from "@/assets/icons/icons8-facebook.svg";
 import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
-import { Alert } from "react-native";
+import { Alert, View } from "react-native";
 
 interface ButtonPropType {
     className?: string;
@@ -33,10 +33,11 @@ export function FacebookLoginButton({ className }: ButtonPropType) {
     return (
         <Button
             onPress={signInWithFacebook}
-            className={`bg-white rounded-lg data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
+            className={`bg-white rounded-lg flex justify-between data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
         >
             <FaceBookSvg width={24} height={24} style={{ marginRight: 10 }} />
             <ButtonText>Sign in with Facebook</ButtonText>
+             <View />
         </Button>
     );
 }

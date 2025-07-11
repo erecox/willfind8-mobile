@@ -9,16 +9,11 @@ import {
   FormControlErrorText,
   FormControlErrorIcon,
 } from "@/components/ui/form-control";
-import {
-  Input,
-  InputField,
-  InputSlot,
-  InputIcon,
-} from "@/components/ui/input";
-import { AlertCircleIcon } from "@/components/ui/icon";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input";
+import { AlertCircleIcon, ArrowRightIcon } from "@/components/ui/icon";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
-import { EyeIcon, EyeOffIcon } from "lucide-react-native";
+import { ArrowBigRightIcon, ArrowRightFromLineIcon, EyeIcon, EyeOffIcon } from "lucide-react-native";
 import { Box } from "@/components/ui/box";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
@@ -29,6 +24,7 @@ import * as Yup from "yup";
 import { useAuthStore } from "@/hooks/useAuth";
 import { router } from "expo-router";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
+import { LogoIcon } from "@/components/custom/logo-icon";
 
 const SignUpSchema = Yup.object().shape({
   loginId: Yup.string().required("Email or phone is required."),
@@ -74,7 +70,7 @@ export default function SignUpScreen() {
       >
         <Box className="p-5 rounded-lg bg-background-0">
           <Center className="mb-10">
-            <Image alt="Logo" source={require("@/assets/images/icon.png")} />
+            <LogoIcon />
             <Heading size="md" className="text-center">
               Create Your Willfind8 Account
             </Heading>
@@ -118,9 +114,7 @@ export default function SignUpScreen() {
             className="w-full mt-6"
           >
             <FormControlLabel>
-              <FormControlLabelText size="sm">
-                Password
-              </FormControlLabelText>
+              <FormControlLabelText size="sm">Password</FormControlLabelText>
             </FormControlLabel>
             <Input>
               <InputField
@@ -155,7 +149,9 @@ export default function SignUpScreen() {
           {/* Confirm Password Field */}
           <FormControl
             isInvalid={
-              !!(formik.touched.confirmPassword && formik.errors.confirmPassword)
+              !!(
+                formik.touched.confirmPassword && formik.errors.confirmPassword
+              )
             }
             className="mt-6 w-full"
           >
@@ -184,24 +180,33 @@ export default function SignUpScreen() {
                 Should match the password above.
               </FormControlHelperText>
             </FormControlHelper>
-            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-              <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
-                <FormControlErrorText size="xs">
-                  {formik.errors.confirmPassword}
-                </FormControlErrorText>
-              </FormControlError>
-            )}
+            {formik.touched.confirmPassword &&
+              formik.errors.confirmPassword && (
+                <FormControlError>
+                  <FormControlErrorIcon as={AlertCircleIcon} />
+                  <FormControlErrorText size="xs">
+                    {formik.errors.confirmPassword}
+                  </FormControlErrorText>
+                </FormControlError>
+              )}
           </FormControl>
 
           {/* Submit Button */}
           <Button
             className="mt-8 w-full"
-            size="sm"
             disabled={!formik.isValid}
             onPress={formik.handleSubmit as any}
           >
             <ButtonText>Create Account</ButtonText>
+          </Button>
+
+          <Button
+            variant="link"
+            className="mt-3 w-full"
+            onPress={() => router.push("/(auth)/login")}
+          >
+            <ButtonText>SignIn Instead</ButtonText>
+            <ButtonIcon as={ArrowRightIcon} />
           </Button>
         </Box>
       </ScrollView>

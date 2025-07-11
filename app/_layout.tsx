@@ -10,6 +10,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 GoogleSignin.configure({
   webClientId:"181055438274-h74907ar84b959aq09it4f95pkse0318.apps.googleusercontent.com",
   scopes: ["profile", "email"],
+  iosClientId:'181055438274-243ie9q3uj0f8igug6h73pusnmrg0t6c.apps.googleusercontent.com'
 });
 
 export default function RootLayout() {

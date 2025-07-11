@@ -288,7 +288,7 @@ const Button = React.forwardRef<
   React.ComponentRef<typeof UIButton>,
   IButtonProps
 >(function Button(
-  { className, variant = 'solid', size = 'md', action = 'primary', ...props },
+  { className, variant = 'solid', size = 'lg', action = 'primary', ...props },
   ref
 ) {
   return (

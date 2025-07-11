@@ -4,6 +4,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { Alert } from 'react-native';
 import GoogleSvg from "@/assets/icons/icons8-google-48.svg";
+import { View } from 'react-native';
 
 export function GoogleLoginButton({ className }: { className?: string }) {
     const startSignInFlow = async () => {
@@ -27,9 +28,10 @@ export function GoogleLoginButton({ className }: { className?: string }) {
 
     return (<Button
         onPress={startSignInFlow}
-        className={`bg-white rounded-lg data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
+        className={`bg-white rounded-lg flex justify-between data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
     >
-        <GoogleSvg width={24} height={24} style={{ marginRight: 10 }} />
-        <ButtonText>Sign in with Google</ButtonText>
+       <GoogleSvg width={24} height={24} style={{ marginRight: 10, }} />
+        <ButtonText className='self-center'>Sign in with Google</ButtonText>
+        <View />
     </Button>)
 }

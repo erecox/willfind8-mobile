@@ -27,6 +27,7 @@ import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { GoogleLoginButton } from "@/components/custom/google-login-button";
 import { FacebookLoginButton } from "@/components/custom/facebook-login-button";
+import { LogoIcon } from "@/components/custom/logo-icon";
 
 const LoginSchema = Yup.object().shape({
   loginId: Yup.string().required("Login ID is required."),
@@ -72,7 +73,7 @@ export default function LoginLayout() {
       >
         <Box className="p-5 rounded-lg bg-background-0">
           <Center className="mb-10">
-            <Image alt="Logo" source={require('@/assets/images/icon.png')} />
+            <LogoIcon />
             <Heading size="md" className="text-center">
               Welcome to Willfind8
             </Heading>
@@ -147,7 +148,6 @@ export default function LoginLayout() {
 
           <Button
             className="mt-8 w-full"
-            size="sm"
             disabled={!formik.isValid || submitting}
             onPress={formik.handleSubmit as any}
           >
@@ -158,7 +158,6 @@ export default function LoginLayout() {
             onPress={handleCreateAccount}
             variant="outline"
             className="mt-8 w-full border-dashed"
-            size="sm"
           >
             <ButtonText>Create An Account</ButtonText>
           </Button>

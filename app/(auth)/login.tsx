@@ -163,7 +163,8 @@ export default function LoginLayout() {
             <ButtonText>Create An Account</ButtonText>
           </Button>
         </Box>
-        <Box className="p-5 rounded-lg">
+        <Box className="p-5 gap-3 rounded-lg">
+          <GoogleLoginButton />
           <FacebookLoginButton />
         </Box>
       </ScrollView>

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import * as SecureStorage from "expo-secure-store";
 import { User } from "@/types";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 type AuthState = {
   user: User | null;
@@ -26,7 +27,10 @@ export const useAuthStore = create<AuthState>()(
       setAccessToken: (token) => set({ accessToken: token }),
       clearAccessToken: () => set({ accessToken: null }),
       login: (user, accessToken) => set({ user, accessToken, isLoggedIn: !!(user && accessToken) }),
-      logout: () => set({ user: null, accessToken: null, isLoggedIn: false })
+      logout: async () => {
+        set({ user: null, accessToken: null, isLoggedIn: false });
+        await GoogleSignin.signOut();
+      }
     }),
     {
       name: "login-user-storage",

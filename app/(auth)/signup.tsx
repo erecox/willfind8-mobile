@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FormControl,
   FormControlHelper,
@@ -10,21 +10,22 @@ import {
   FormControlErrorIcon,
 } from "@/components/ui/form-control";
 import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input";
-import { AlertCircleIcon, ArrowRightIcon } from "@/components/ui/icon";
+import { AlertCircleIcon, ArrowLeftIcon, ArrowRightIcon } from "@/components/ui/icon";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
-import { ArrowBigRightIcon, ArrowRightFromLineIcon, EyeIcon, EyeOffIcon } from "lucide-react-native";
+import { EyeIcon, EyeOffIcon } from "lucide-react-native";
 import { Box } from "@/components/ui/box";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
-import { Image } from "@/components/ui/image";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useAuthStore } from "@/hooks/useAuth";
 import { router } from "expo-router";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { LogoIcon } from "@/components/custom/logo-icon";
+import { GoogleLoginButton } from "@/components/custom/google-login-button";
+import { ActivityIndicator } from "react-native";
 
 const SignUpSchema = Yup.object().shape({
   loginId: Yup.string().required("Email or phone is required."),
@@ -37,12 +38,14 @@ const SignUpSchema = Yup.object().shape({
 });
 
 export default function SignUpScreen() {
-  const [showPassword1, setShowPassword1] = React.useState(false);
-  const [showPassword2, setShowPassword2] = React.useState(false);
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
   const { setUser } = useAuthStore();
 
   const formik = useFormik({
     initialValues: {
+      name: "",
       loginId: "",
       password: "",
       confirmPassword: "",
@@ -51,8 +54,7 @@ export default function SignUpScreen() {
     onSubmit: (values) => {
       console.log("Sign up values", values);
       setUser({
-        id: 1,
-        name: "Eric Mensah",
+        id: "123",
         email: values.loginId,
         phone: values.loginId,
         ...values,
@@ -63,13 +65,13 @@ export default function SignUpScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1 bg-background-50">
       <ScrollView
         className="bg-background-50"
-        contentContainerClassName="px-5 pt-10"
+        contentContainerClassName="px-5 pt-5"
       >
         <Box className="p-5 rounded-lg bg-background-0">
-          <Center className="mb-10">
+          <Center className="mb-8">
             <LogoIcon />
             <Heading size="md" className="text-center">
               Create Your Willfind8 Account
@@ -79,10 +81,39 @@ export default function SignUpScreen() {
             </Text>
           </Center>
 
+          {/* Name */}
+          <FormControl
+            isInvalid={!!(formik.touched.name && formik.errors.name)}
+            className="w-full"
+          >
+            <FormControlLabel>
+              <FormControlLabelText size="sm">
+                Name
+              </FormControlLabelText>
+            </FormControlLabel>
+            <Input>
+              <InputField
+                type="text"
+                value={formik.values.name}
+                onChangeText={formik.handleChange("name")}
+                onBlur={formik.handleBlur("name")}
+                placeholder="Enter your namme"
+              />
+            </Input>
+            {formik.touched.name && formik.errors.name && (
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText size="xs">
+                  {formik.errors.name}
+                </FormControlErrorText>
+              </FormControlError>
+            )}
+          </FormControl>
+
           {/* Login ID Field */}
           <FormControl
             isInvalid={!!(formik.touched.loginId && formik.errors.loginId)}
-            className="w-full"
+            className="w-full mt-6"
           >
             <FormControlLabel>
               <FormControlLabelText size="sm">
@@ -193,20 +224,41 @@ export default function SignUpScreen() {
 
           {/* Submit Button */}
           <Button
-            className="mt-8 w-full"
+            className="mt-6 w-full"
             disabled={!formik.isValid}
             onPress={formik.handleSubmit as any}
           >
             <ButtonText>Create Account</ButtonText>
+             <ActivityIndicator animating={submitting} />
           </Button>
+          <Box className="mt-6 items-center gap-1">
+            <Text size="xs">Already have an account ?</Text>
+            <Button
+              variant="link"
+              action="secondary"
+              className=" w-full"
+              onPress={() => router.back()}
+            >
+              <ButtonIcon as={ArrowLeftIcon} />
+              <ButtonText className="font-normal">Sign in Instead</ButtonText>
+            </Button>
+          </Box>
+        </Box>
+
+        <Box className="p-5 gap-5 rounded-lg">
+          <GoogleLoginButton />
+          {/* <FacebookLoginButton /> */}
 
           <Button
+            onPress={() => router.replace('/(tabs)')}
             variant="link"
-            className="mt-3 w-full"
-            onPress={() => router.push("/(auth)/login")}
+            size="md"
+            action="secondary"
+            className="w-full border-dashed"
           >
-            <ButtonText>SignIn Instead</ButtonText>
+            <ButtonText>Continue Shopping</ButtonText>
             <ButtonIcon as={ArrowRightIcon} />
+           
           </Button>
         </Box>
       </ScrollView>

@@ -18,22 +18,20 @@ import {
 import { VStack } from "@/components/ui/vstack";
 import { Divider } from "@/components/ui/divider";
 import { ActionBox } from "@/components/custom/action-box";
-import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
 import { Center } from "@/components/ui/center";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { router } from "expo-router";
-import { TouchableOpacity } from "react-native";
+import { Redirect, router } from "expo-router";
+import { Alert, TouchableOpacity } from "react-native";
+import { DeleteAccountAlert } from "@/components/modals/delete-account-alert";
 
 export default function AccountLayout() {
   const { user, logout } = useAuthStore();
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
-  useEffect(() => {
-    if (!user) router.push('/(auth)/login');
-  }, [user]);
+  if (!user) return <Redirect href={'/(auth)/login'} />;
 
   const handleSettingPress = () => router.push('/settings');
   const handleMyAdsPress = () => router.push('/my-ads');
@@ -48,17 +46,24 @@ export default function AccountLayout() {
   const handleFaqPress = () => router.push('/faq');
   const handleCustomerSupportPress = () => router.push('/customer-support');
   const handleDeleteAccount = () => setShowDeleteAlert(true);
+  const handleLogoAlert = () => Alert.alert(
+    "Are you sure?",
+    "This will log you out of you account.",
+    [
+      { "text": "Yes, Logout", style: "destructive", onPress: logout },
+      { "text": "Cancel", style: "default" }
+    ]);
 
   return (
     <SafeAreaView>
       <ScrollView
-        className={`bg-background-200`}
+        className={`bg-background-50`}
         contentContainerClassName="p-3 pb-6"
       >
-        <Card className="p-5 rounded-lg">
+        <Box className="p-5">
           <TouchableOpacity onPress={handleSettingPress} activeOpacity={.5}>
             <Center>
-              <Avatar size="2xl">
+              <Avatar size="lg">
                 <AvatarImage source={{ uri: 'https://gluestack.github.io/public-blog-video-assets/yoga.png', }}
                   alt="image" />
               </Avatar>
@@ -67,7 +72,7 @@ export default function AccountLayout() {
               <Text className="text-xs font-normal text-typography-700" >Joined: May 15, 2023</Text>
             </Center>
           </TouchableOpacity>
-        </Card>
+        </Box>
 
         <Box className="rounded-lg mt-5 w-full self-center">
           <VStack>
@@ -107,11 +112,12 @@ export default function AccountLayout() {
           </VStack>
         </Box>
 
-        <Button onPress={logout} className="mt-5">
+        <Button onPress={handleLogoAlert} className="mt-5">
           <ButtonText>Logout</ButtonText>
           <ButtonIcon as={LogOutIcon} />
         </Button>
       </ScrollView>
+      <DeleteAccountAlert showAlertDialog={showDeleteAlert} handleClose={() => setShowDeleteAlert(false)} />
     </SafeAreaView>
   );
 }

@@ -4,7 +4,7 @@ import { FavouriteIcon, Icon } from "@/components/ui/icon";
 import { Grid2X2Icon, Home, PlusSquareIcon, UserIcon } from "lucide-react-native";
 import { router } from "expo-router";
 import { useAuthStore } from "@/hooks/useAuth";
-import { AuthAlert } from "@/components/custom/auth-alert";
+import { AuthAlert } from "@/components/modals/auth-alert";
 
 export default function TabsLayout() {
   const { user } = useAuthStore();

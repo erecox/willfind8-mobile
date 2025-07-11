@@ -12,11 +12,14 @@ export type Product = {
 export type AccountProvider = 'app' | 'google' | 'facebook';
 
 export type User = {
-  id: number;
+  id: string;
   provider?: AccountProvider;
   google_id?: string | null;
-  facebook_id?:string | null;
-  email?: string;
-  phone: string;
-  name: string;
+  facebook_id?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  name?: string;
+  photo?: string | null;
+  family_name?: string | null;
+  given_name?: string | null;
 }

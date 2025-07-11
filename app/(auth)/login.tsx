@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FormControl,
   FormControlHelper,
@@ -11,14 +11,13 @@ import {
 } from "@/components/ui/form-control";
 import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input";
 import { AlertCircleIcon } from "@/components/ui/icon";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
-import { EyeIcon, EyeOffIcon } from "lucide-react-native";
+import { ArrowRightIcon, EyeIcon, EyeOffIcon } from "lucide-react-native";
 import { Box } from "@/components/ui/box";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
-import { Image } from "@/components/ui/image";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useAuthStore } from "@/hooks/useAuth";
@@ -26,8 +25,10 @@ import { router } from "expo-router";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { GoogleLoginButton } from "@/components/custom/google-login-button";
-import { FacebookLoginButton } from "@/components/custom/facebook-login-button";
 import { LogoIcon } from "@/components/custom/logo-icon";
+import { Link, LinkText } from "@/components/ui/link";
+import { ForgotPasswordModal } from "@/components/modals/forgot-password";
+import { ActivityIndicator } from "react-native";
 
 const LoginSchema = Yup.object().shape({
   loginId: Yup.string().required("Login ID is required."),
@@ -38,28 +39,28 @@ const LoginSchema = Yup.object().shape({
 
 export default function LoginLayout() {
   const { loginId: signInLoginId } = useLocalSearchParams();
-  const [showPassword1, setShowPassword1] = React.useState(false);
-  const [submitting, setSubmitting] = React.useState(false);
-
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [showForgotPassModel, setShowForgotPassModel] = useState(false);
   const { setUser } = useAuthStore();
 
-  const handleCreateAccount = () => router.push({
-    'pathname': '/signup',
-    params: { loginId: formik.values.loginId }
-  });
-
+  const handleCreateAccount = () => {
+    router.push({
+      'pathname': '/signup',
+      params: { loginId: formik.values.loginId }
+    });
+  }
   const formik = useFormik({
     initialValues: {
       loginId: signInLoginId?.toString() || "",
-      password: "",
-      confirmPassword: "",
+      password: ""
     },
     validationSchema: LoginSchema,
     onSubmit: (values) => {
       setSubmitting(true);
       // handle login here
       console.log("values", values);
-      setUser({ ...values, id: 1, name: 'Eric Mensah', phone: values.loginId, email: values.loginId });
+      setUser({ ...values, id: "23", name: 'Eric Mensah', phone: values.loginId, email: values.loginId });
       if (router.canGoBack()) router.back();
       else router.push("/(tabs)");
     },
@@ -70,6 +71,7 @@ export default function LoginLayout() {
       <ScrollView
         className={`bg-background-50`}
         contentContainerClassName="px-5 pt-10"
+        keyboardShouldPersistTaps="handled"
       >
         <Box className="p-5 rounded-lg bg-background-0">
           <Center className="mb-10">
@@ -148,25 +150,46 @@ export default function LoginLayout() {
 
           <Button
             className="mt-8 w-full"
-            disabled={!formik.isValid || submitting}
+            isDisabled={!formik.isValid || submitting}
             onPress={formik.handleSubmit as any}
           >
             <ButtonText>Login</ButtonText>
+            <ActivityIndicator animating={submitting} />
           </Button>
+
+          <Link onPress={() => setShowForgotPassModel(true)} className="mt-4" >
+            <LinkText size="sm" className="no-underline">Forgot password? click here</LinkText>
+          </Link>
 
           <Button
             onPress={handleCreateAccount}
             variant="outline"
-            className="mt-8 w-full border-dashed"
+            action="secondary"
+            className="mt-6 w-full border-dashed"
           >
             <ButtonText>Create An Account</ButtonText>
           </Button>
         </Box>
-        <Box className="p-5 gap-3 rounded-lg">
+        <Box className="p-5 gap-5 rounded-lg">
           <GoogleLoginButton />
-          <FacebookLoginButton />
+          {/* <FacebookLoginButton /> */}
+
+          <Button
+            onPress={() => router.replace('/(tabs)')}
+            variant="link"
+            size="md"
+            action="secondary"
+            className="w-full border-dashed"
+          >
+            <ButtonText>Continue Shopping</ButtonText>
+            <ButtonIcon as={ArrowRightIcon} />
+          </Button>
         </Box>
       </ScrollView>
+      <ForgotPasswordModal
+        isOpen={showForgotPassModel}
+        onClose={() => setShowForgotPassModel(false)}
+      />
     </SafeAreaView>
   );
 }

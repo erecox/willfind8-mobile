@@ -19,6 +19,8 @@ import { useLoading } from "@/hooks/useLoading";
 import { HStack } from "@/components/ui/hstack";
 import { Heading } from "@/components/ui/heading";
 import { router } from "expo-router";
+import { ToggleColumnButton } from "@/components/custom/toggle-column";
+import { useColumnLayout } from "@/hooks/useColumnLayout";
 
 interface HeaderProps {
   translateY: any;
@@ -31,6 +33,7 @@ export default function HomeScreen() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef<FlatList>(null); // Ref for the FlatList
   const scrollOffsetRef = useRef(0);
+  const { columns, toggleColumns } = useColumnLayout();
   const loader = useLoading();
 
   const translateY = scrollY.interpolate({
@@ -50,12 +53,6 @@ export default function HomeScreen() {
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
-
-  const [columns, setColumns] = useState(2);
-
-  const toggleColumns = () => {
-    setColumns(columns === 2 ? 1 : 2);
-  };
 
   return (
     <SafeAreaView>
@@ -90,16 +87,7 @@ export default function HomeScreen() {
           ListHeaderComponent={() => (
             <HStack className="justify-between mb-1">
               <Heading size="sm">Trending</Heading>
-              <TouchableOpacity
-                className="p-1 bg-secondary-500 dark:bg-background-500 rounded"
-                onPress={toggleColumns}
-              >
-                {columns === 2 ? (
-                  <Icon className="color-white" size="lg" as={ListIcon} />
-                ) : (
-                  <Icon className="color-white" size="lg" as={Grid2X2Icon} />
-                )}
-              </TouchableOpacity>
+              <ToggleColumnButton isGrid={columns === 2} toggleColumns={toggleColumns} />
             </HStack>
           )}
         />
@@ -126,11 +114,11 @@ const Header: React.FC<HeaderProps> = ({ translateY, logoOpacity }) => {
         { transform: [{ translateY }] },
       ]}
     >
-      <VStack className="w-full h-[105px] p-[10px] border-10 bg-background-0 dark:bg-background-900">
+      <VStack className="w-full flex justify-end h-[105px] p-[10px] border-10 bg-background-0 dark:bg-background-900">
         <Animated.View style={{ opacity: logoOpacity }}>
           <LogoBar />
         </Animated.View>
-        <SearchBox onPress={()=>router.push('/(account)/about-us')} />
+        <SearchBox onPress={() => router.push('/(account)/about-us')} />
       </VStack>
     </Animated.View>
   );

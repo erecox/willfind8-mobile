@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Image as ExpoImage } from "expo-image";
 import { Text } from "@/components/ui/text";
@@ -10,6 +10,7 @@ import { MapPinIcon, PhoneCallIcon } from "lucide-react-native";
 import { Icon, MessageCircleIcon } from "@/components/ui/icon";
 import { Product } from "@/types";
 import { Button, ButtonIcon } from "@/components/ui/button";
+import { FavouriteButton } from "../favourite-button";
 
 type ProductCardProps = {
   product: Product;
@@ -17,18 +18,20 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product, onPress }: ProductCardProps) {
+  const [isFavourite, setIsFavourite] = useState(false);
   return (
     <Pressable
-      className={`flex-1  bg-background-0 dark:bg-background-700 w-full h-full sm:gap-2 gap-1 flex flex-col pb-2 lg:p-4`}
+      className={`flex-1 bg-background-0 dark:bg-background-700 w-full h-full sm:gap-2 gap-1 flex flex-col pb-2 lg:p-4`}
       onPress={onPress}
     >
-      <Box className="bg-background-50 dark:bg-background-800 px-3 lg:px-6 py-[14px] lg:py-7 aspect-[17/12]">
+      <Box className="bg-background-50 dark:bg-background-800 px-3 lg:px-6 py-[14px] lg:py-7 aspect-[12/14]">
         <ExpoImage
           source={product.image}
           alt={product.name}
           className={`flex-1 rounded bg-background-500`}
           cachePolicy="memory-disk"
         />
+        <FavouriteButton active={isFavourite} onToggleActive={setIsFavourite} />
       </Box>
       <VStack className="px-3 gap-1">
         <HStack className="justify-between">
@@ -41,7 +44,7 @@ export function ProductCard({ product, onPress }: ProductCardProps) {
         </Text>
         <HStack className="gap-1">
           <Icon className="dark:color-gray-400" size="xs" as={MapPinIcon} />
-          <Text className="text-typography-900 dark:text-typography-400 font-small sm:text-base text-xs">
+          <Text className="text-typography-900 dark:text-typography-400 font-small sm:text-base text-2xs">
             {product.city}
           </Text>
         </HStack>
@@ -79,7 +82,7 @@ export function ProductCardLandscape({ product, onPress }: ProductCardProps) {
 
         <HStack className="items-center gap-1">
           <Icon as={MapPinIcon} size="xs" className="text-typography-500 dark:text-typography-400" />
-          <Text className="text-xs text-typography-500 dark:text-typography-400">
+          <Text className="text-2xs text-typography-500 dark:text-typography-400">
             {product.city}
           </Text>
         </HStack>

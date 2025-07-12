@@ -12,17 +12,20 @@ import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { Center } from "@/components/ui/center";
 import { Product } from "@/types";
+import { ChevronRightIcon, Icon } from "@/components/ui/icon";
+import { Pressable } from "@/components/ui/pressable";
+import { router } from "expo-router";
 
 export default function CategoriesLayout() {
   const [selectedMainCategory, setSelectedMainCategory] = useState<Product | null>(products[0]);
   return (
     <SafeAreaView>
-      <VStack className="flex-1 dark:bg-background-900 bg-background-50">
-        <VStack className="w-full p-[10px] border-10 bg-background-0 dark:bg-background-900">
-          <SearchBox className="mt-0" />
-        </VStack>
-        < HStack className="gap-1 flex-1">
-          <Box className=" w-1/3">
+      <VStack className=" dark:bg-background-900 bg-background-50">
+        <Card className="absolute w-full" size='sm'>
+          <SearchBox />
+        </Card>
+        <HStack className=" pt-[60px]">
+          <Box className="w-1/3">
             <FlatList
               contentContainerClassName="gap-y-[2px]"
               initialNumToRender={10}
@@ -30,20 +33,19 @@ export default function CategoriesLayout() {
               data={products}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => setSelectedMainCategory(item)} activeOpacity={.6} >
-                  <Card size='sm' className={`bg-background-0 ${selectedMainCategory?.id === item.id ? 'bg-background-100' : ''}`}>
+                  <Card size='sm' className={`bg-background-0 ${selectedMainCategory?.id === item.id ? 'bg-primary-500' : ''}`}>
                     <HStack className="gap-2 items-center">
-                      <Image className="h-[25px] w-[25px]" alt={item.name} source={item.image} />
-                    <Box className="flex-1">
-                        <Heading size="xs" >{item.name}</Heading>
-                    </Box>
+                      <Image className="h-[25px] w-[25px] rounded" alt={item.name} source={item.image} />
+                      <Box className="flex-1">
+                        <Text numberOfLines={2} size="xs" >{item.name}</Text>
+                      </Box>
                     </HStack>
                   </Card>
                 </TouchableOpacity>)}
             />
           </Box>
-          <Box className="flex-1">
+          <Box className="w-2/3">
             <FlatList
-              className="flex-1"
               numColumns={3}
               initialNumToRender={10}
               data={products.filter((item) => item.category === selectedMainCategory?.category)}
@@ -60,6 +62,14 @@ export default function CategoriesLayout() {
                 </Box>
               )}
             />
+            <Card size="sm" className="py-1" >
+              <HStack className="justify-end">
+                <Pressable onPress={() => router.push('/(search)/results')} className="flex flex-row items-center gap-1">
+                  <Heading size="xs" >View All</Heading>
+                  <Icon as={ChevronRightIcon} />
+                </Pressable>
+              </HStack>
+            </Card>
           </Box>
         </HStack>
       </VStack>

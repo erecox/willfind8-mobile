@@ -1,38 +1,44 @@
-import React from "react";
-import { ScrollView } from "@/components/ui/scroll-view";
+import React, { useState } from "react";
 import { Box } from "@/components/ui/box";
-import { StarIcon } from "@/components/ui/icon";
-import {
-  FileChartPieIcon,
-  HeartHandshakeIcon,
-  MessagesSquareIcon,
-  ViewIcon
-} from "lucide-react-native";
-import { VStack } from "@/components/ui/vstack";
-import { Divider } from "@/components/ui/divider";
-import { ActionBox } from "@/components/custom/action-box";
+import { SearchBox } from "@/components/custom/search-box";
+import { Card } from "@/components/ui/card";
+import { FlatList, View } from "react-native";
+import { ProductCard, ProductCardLandscape } from "@/components/custom/product-card";
+import products from "@/constants/mockup/products.json";
+import { Pressable } from "@/components/ui/pressable";
+import { ChevronLeftIcon, Icon } from "@/components/ui/icon";
+import { ToggleColumnButton } from "@/components/custom/toggle-column";
+import { HStack } from "@/components/ui/hstack";
+import { useColumnLayout } from "@/hooks/useColumnLayout";
+import { router } from "expo-router";
 
 export default function ResultsScreen() {
-
+  const { columns, toggleColumns } = useColumnLayout();
   return (
-      <ScrollView
-        className={`bg-background-200`}
-        contentContainerClassName="p-3 pb-6"
-      >
-
-        <Box className="rounded-lg mt-5 w-full self-center">
-          <VStack>
-            <ActionBox as={FileChartPieIcon} title="My Ads" />
-            <Divider />
-            <ActionBox as={MessagesSquareIcon} title="Messages" />
-            <Divider />
-            <ActionBox as={StarIcon} title="Ratings & Reviews" />
-            <Divider />
-            <ActionBox as={HeartHandshakeIcon} title="Followed Sellers" />
-            <Divider />
-            <ActionBox as={ViewIcon} title="Recently Viewed" />
-          </VStack>
+    <Box className="flex-1">
+      <Card size="sm" className="w-full absolute">
+        <Box className="w-full flex flex-row items-center p-0">
+          <Pressable onPress={() => router.back()}>
+            <Icon size='2xl' as={ChevronLeftIcon} />
+          </Pressable>
+          <SearchBox className="flex-1" />
         </Box>
-      </ScrollView>
+      </Card>
+      <Box className="pt-[60px]">
+        <FlatList
+        key={columns}
+        extraData={columns}
+        numColumns={columns}
+        data={products}
+        initialNumToRender={10}
+        contentContainerClassName="gap-1"
+        renderItem={({ item }) => columns === 2 ? <ProductCard product={item} /> : <ProductCardLandscape product={item} />}
+        ListHeaderComponent={
+          <HStack className="justify-end mt-2">
+            <ToggleColumnButton isGrid={columns === 2} toggleColumns={toggleColumns} />
+          </HStack>}
+      />
+      </Box>
+    </Box>
   );
 }

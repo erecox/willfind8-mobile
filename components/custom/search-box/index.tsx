@@ -9,6 +9,7 @@ import { View } from "react-native";
 import { VStack } from "@/components/ui/vstack";
 import { Divider } from "@/components/ui/divider";
 import { Pressable } from "@/components/ui/pressable";
+import { Box } from "@/components/ui/box";
 
 interface SearchBoxProps {
     className?: string;
@@ -20,10 +21,10 @@ interface SearchBoxProps {
 export function SearchBox({ className, data, query, onPress }: SearchBoxProps) {
 
     return (
-        <Pressable className="relative">
-            <Input variant="outline" className={`px-1 mt-[15px] border-gray-300 dark:border-gray-500 rounded-xl bg-gray-50 dark:bg-gray-400 ${className}`} >
-                <InputIcon className="dark:color-gray-600" as={SearchIcon} />
-                <InputField onPress={onPress} className="text-white dark:color-black" placeholder="Search..." />
+        <Box className={className}>
+            <Input variant="outline" className={`px-1 w-full border-gray-300 dark:border-gray-500 rounded-xl bg-gray-50 dark:bg-gray-400 ${className}`} >
+                <InputIcon as={SearchIcon} />
+                <InputField onPress={onPress} placeholder="Search..." />
             </Input>
             {data &&
                 <View className="absolute w-full z-100 top-[57px]">
@@ -42,6 +43,6 @@ export function SearchBox({ className, data, query, onPress }: SearchBoxProps) {
                     />
                 </View>
             }
-        </Pressable>
+        </Box>
     )
 };

@@ -7,7 +7,7 @@ import { darkColors, lightColors } from './colors';
 
 // Extend ExpTabs
 const TabsBase = React.forwardRef<
-  React.ElementRef<typeof ExpTabs>,
+  React.ComponentRef<typeof ExpTabs>,
   React.ComponentProps<typeof ExpTabs>
 >(function Tabs(props, ref) {
   const { themeMode } = useThemeMode();

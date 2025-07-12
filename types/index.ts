@@ -7,6 +7,7 @@ export type Product = {
   name: string;
   price: number | string;
   city: string;
+  category: string;
 };
 
 export type AccountProvider = 'app' | 'google' | 'facebook';

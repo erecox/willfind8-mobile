@@ -24,7 +24,7 @@ export function ProductCard({ product, onPress }: ProductCardProps) {
       className={`flex-1 bg-background-0 dark:bg-background-700 w-full h-full sm:gap-2 gap-1 flex flex-col pb-2 lg:p-4`}
       onPress={onPress}
     >
-      <Box className="bg-background-50 dark:bg-background-800 px-3 lg:px-6 py-[14px] lg:py-7 aspect-[12/14]">
+      <Box className="bg-background-50 dark:bg-background-800 aspect-[12/14]">
         <ExpoImage
           source={product.image}
           alt={product.name}

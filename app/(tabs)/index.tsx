@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { VStack } from "@/components/ui/vstack";
-import { Animated, FlatList, TouchableOpacity } from "react-native";
+import { Animated, FlatList } from "react-native";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { SearchBox } from "@/components/custom/search-box";
 import { LogoBar } from "@/components/custom/logo-bar";
@@ -14,7 +14,7 @@ import { cssInterop } from "nativewind";
 import { Image } from "expo-image";
 import { Fab } from "@/components/ui/fab";
 import { Icon } from "@/components/ui/icon";
-import { ChevronUp, Grid2X2Icon, ListIcon } from "lucide-react-native";
+import { ChevronUp } from "lucide-react-native";
 import { useLoading } from "@/hooks/useLoading";
 import { HStack } from "@/components/ui/hstack";
 import { Heading } from "@/components/ui/heading";
@@ -60,13 +60,14 @@ export default function HomeScreen() {
         <Header translateY={translateY} logoOpacity={hideLogo} />
         <Animated.FlatList
           ref={scrollRef}
-          contentContainerClassName="pt-[100px] px-[10] pb-[10px] gap-[2px] bg-background-50"
-          className={`flex-1 py-[10]`}
-          initialNumToRender={10}
           key={columns} // Important to force layout change
           numColumns={columns}
           data={products}
           extraData={columns}
+          initialNumToRender={10}
+          contentContainerClassName="pt-[100px] px-[10] pb-[10px] gap-y-1 bg-background-50"
+          columnWrapperClassName={columns===2?'gap-x-1':undefined}
+          className={`flex-1 py-[10]`}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             {
@@ -87,7 +88,10 @@ export default function HomeScreen() {
           ListHeaderComponent={() => (
             <HStack className="justify-between mb-1">
               <Heading size="sm">Trending</Heading>
-              <ToggleColumnButton isGrid={columns === 2} toggleColumns={toggleColumns} />
+              <ToggleColumnButton
+                isGrid={columns === 2}
+                toggleColumns={toggleColumns}
+              />
             </HStack>
           )}
         />
@@ -118,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ translateY, logoOpacity }) => {
         <Animated.View style={{ opacity: logoOpacity }}>
           <LogoBar />
         </Animated.View>
-        <SearchBox onPress={() => router.push('/(account)/about-us')} />
+        <SearchBox onPress={() => router.push("/(account)/about-us")} />
       </VStack>
     </Animated.View>
   );

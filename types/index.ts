@@ -1,6 +1,12 @@
 
 export type ThemeMode = "light" | "dark";
 
+export type Category = {
+  id: number | string;
+  image: string;
+  name: string;
+};
+
 export type Product = {
   id: number | string;
   image: string;

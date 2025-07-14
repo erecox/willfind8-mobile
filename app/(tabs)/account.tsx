@@ -3,7 +3,7 @@ import { ScrollView } from "@/components/ui/scroll-view";
 import { Box } from "@/components/ui/box";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { useAuthStore } from "@/hooks/useAuth";
-import { CheckCircleIcon, InfoIcon, SettingsIcon, StarIcon } from "@/components/ui/icon";
+import { BellIcon, CheckCircleIcon, InfoIcon, SettingsIcon, StarIcon } from "@/components/ui/icon";
 import {
   BriefcaseBusinessIcon,
   CreditCardIcon,
@@ -37,6 +37,7 @@ export default function AccountLayout() {
   const handleMyAdsPress = () => router.push('/my-ads');
   const handleMessagesPress = () => router.push('/messages');
   const handleReviewPress = () => router.push('/reviews');
+  const handleNotificationsPress = () => router.push('/notifications');
   const handleFollowingPress = () => router.push('/following');
   const handleRecentlyViewPress = () => router.push('/recently-viewed');
   const handleBusinessInfoPress = () => router.push('/business-information');
@@ -85,6 +86,8 @@ export default function AccountLayout() {
             <ActionBox onPress={handleFollowingPress} as={HeartHandshakeIcon} title="Followed Sellers" />
             <Divider />
             <ActionBox onPress={handleRecentlyViewPress} as={ViewIcon} title="Recently Viewed" />
+            <Divider />
+            <ActionBox onPress={handleNotificationsPress} as={BellIcon} title="Notifications" />
           </VStack>
         </Box>
 

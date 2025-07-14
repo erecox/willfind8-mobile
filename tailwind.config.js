@@ -13,6 +13,7 @@ module.exports = {
     extend: {
       colors: {
         primary: {
+           0: '#FFF5EE',
           50: '#FFF0CC',
           100: '#FFE2AA',
           200: '#FFD188',
@@ -25,6 +26,7 @@ module.exports = {
           900: '#332000',
         },
         secondary: {
+           0: '#EEFFEE',
           50: '#CCFFDD',
           100: '#AAFFCC',
           200: '#88FFBB',
@@ -61,6 +63,7 @@ module.exports = {
           900: '#330000',
         },
         success: {
+           0: '#E9FFEC',
           50: '#E6F4EA',
           100: '#C2E3CB',
           200: '#9DD3AC',
@@ -73,6 +76,7 @@ module.exports = {
           900: '#0A2015',
         },
         warning: {
+           0: '#FFF9E9',
           50: '#FFF5E5',
           100: '#FFE6B8',
           200: '#FFD78A',
@@ -85,6 +89,7 @@ module.exports = {
           900: '#332200',
         },
         info: {
+           0: '#F9F9F9',
           50: '#E5F2FF',
           100: '#B8DCFF',
           200: '#8AC6FF',
@@ -97,6 +102,7 @@ module.exports = {
           900: '#001C33',
         },
         typography: {
+          0: '#F9F9F9',
           50: '#FAFAFA',
           100: '#F5F5F5',
           200: '#E5E5E5',
@@ -112,6 +118,7 @@ module.exports = {
           black: '#181718',
         },
         outline: {
+           0: '#F9F9F9',
           50: '#F0F0F0',
           100: '#E0E0E0',
           200: '#C2C2C2',

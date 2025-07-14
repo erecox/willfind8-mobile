@@ -36,6 +36,9 @@ export default function HomeScreen() {
   const { columns, toggleColumns } = useColumnLayout();
   const loader = useLoading();
 
+
+  const handleProductClicked = (id: any) => router.push({ pathname: '/(ads)/[id]', params: { id } });
+
   const translateY = scrollY.interpolate({
     inputRange: [0, 100],
     outputRange: [0, -65],
@@ -66,7 +69,7 @@ export default function HomeScreen() {
           extraData={columns}
           initialNumToRender={10}
           contentContainerClassName="pt-[100px] px-[10] pb-[10px] gap-y-1 bg-background-50"
-          columnWrapperClassName={columns===2?'gap-x-1':undefined}
+          columnWrapperClassName={columns === 2 ? 'gap-x-1' : undefined}
           className={`flex-1 py-[10]`}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -80,9 +83,11 @@ export default function HomeScreen() {
           )}
           renderItem={({ item }) =>
             columns === 2 ? (
-              <ProductCard product={item} />
+              <ProductCard product={item}
+                onPress={() => handleProductClicked(item.id)} />
             ) : (
-              <ProductCardLandscape product={item} />
+              <ProductCardLandscape product={item}
+                onPress={() => handleProductClicked(item.id)} />
             )
           }
           ListHeaderComponent={() => (

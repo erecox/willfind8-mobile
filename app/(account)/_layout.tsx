@@ -18,6 +18,7 @@ export default function AccountLayout() {
       <Stack.Screen name="my-ads" options={{ title: "My Ads" }} />
       <Stack.Screen name="payment-settings" options={{ title: "Payment Settings" }} />
       <Stack.Screen name="recently-viewed" options={{ title: "Recently Viewed" }} />
+       <Stack.Screen name="notifications" options={{ title: "Notifications" }} />
       <Stack.Screen name="reviews" options={{ title: "Ratings & Reviews" }} />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
       <Stack.Screen name="terms" options={{ title: "Terms of Use" }} />

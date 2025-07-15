@@ -10,7 +10,7 @@ interface props {
 export function FavouriteButton({ active, onToggleActive }: props) {
 
     return (
-        <Pressable onPress={() => onToggleActive && onToggleActive(!active)} className="absolute right-5 top-5">
+        <Pressable onPress={() => onToggleActive && onToggleActive(!active)} className="absolute right-3 top-3">
             <Icon className={`shadow-hard-1 ${active ? 'fill-primary-500' : ''}`} color="white" size="xl" as={FavouriteIcon} />
         </Pressable>
     )

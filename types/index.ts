@@ -14,6 +14,9 @@ export type Product = {
   price: number | string;
   city: string;
   category: string;
+  category_id:number;
+  category_field_id:number;
+  view_count:number;
 };
 
 export type AccountProvider = 'app' | 'google' | 'facebook';
@@ -30,3 +33,11 @@ export type User = {
   family_name?: string | null;
   given_name?: string | null;
 }
+
+export type Suggestion = {
+  id: string;
+  keyword:string;
+  product_id:number;
+  category_id:number;
+  category_field_id:number;
+};

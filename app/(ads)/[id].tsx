@@ -2,7 +2,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useRef, useState } from "react";
 import products from "@/constants/mockup/products.json";
 import { Product } from "@/types";
-import { Animated, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
+import { Animated, FlatList, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 import { ProductCardLandscape } from "@/components/custom/product-card";
 import { Divider } from "@/components/ui/divider";
 import { Box } from "@/components/ui/box";
@@ -11,20 +11,28 @@ import { ImageSlider } from "@/components/ui/image-slider";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
-import { EyeIcon, Icon, MessageCircleIcon } from "@/components/ui/icon";
+import { ChevronUpIcon, EyeIcon, Icon, MessageCircleIcon } from "@/components/ui/icon";
 import { MapPinIcon, PhoneCallIcon } from "lucide-react-native";
 import { Heading } from "@/components/ui/heading";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import moment from "moment";
+import { Fab, FabIcon } from "@/components/ui/fab";
 
 export default function AdDetailsScreen() {
     const { id }: { id: string; } = useLocalSearchParams();
-    const product: Product | undefined = products.findLast((item) => item.id === id);
+    const product: Product = products.findLast((item) => item.id === id);
 
     const [scrolling, setScrolling] = useState(false);
     const buttonAnim = useRef(new Animated.Value(1)).current;
     const scrollTimeout = useRef<number | null>(null);
+    const scrollY = useRef(new Animated.Value(0)).current;
+    const scrollRef = useRef<FlatList>(null); // Ref for the FlatList
 
+    const showFab = scrollY.interpolate({
+        inputRange: [10, 300],
+        outputRange: [0, 1],
+        extrapolate: "clamp",
+    });
 
     const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
         if (!scrolling) {
@@ -49,34 +57,53 @@ export default function AdDetailsScreen() {
                 duration: 200,
                 useNativeDriver: true,
             }).start();
-        }, 500);
+        }, 300);
     };
 
     return (
-        <VStack className="flex-1">
-            <Stack.Screen options={{ title: product?.category }} />
-            <Animated.FlatList
-                data={products}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
-                initialNumToRender={5}
-                contentContainerClassName={'pb-11'}
-                renderItem={({ item }) => <ProductCardLandscape product={item} />}
-                ItemSeparatorComponent={() => <Divider />}
-                ListHeaderComponent={() => <Header product={product} />}
-            />
-            <Animated.View style={{ opacity: buttonAnim }}
-                className="flex flex-row absolute bottom-0 bg-background-0">
-                <Button variant="outline" className="w-1/2 rounded-none">
-                    <ButtonIcon as={MessageCircleIcon} />
-                    <ButtonText>Chat</ButtonText>
-                </Button>
-                <Button className="w-1/2 rounded-none">
-                    <ButtonIcon as={PhoneCallIcon} />
-                    <ButtonText>Call Now</ButtonText>
-                </Button>
-            </Animated.View>
-        </VStack>
+        <>
+            <VStack className="flex-1">
+                <Stack.Screen options={{ title: product?.category }} />
+                <Animated.FlatList
+                    ref={scrollRef}
+                    data={products}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        {
+                            useNativeDriver: true,
+                            listener: handleScroll,
+                        })}
+                    scrollEventThrottle={16}
+                    initialNumToRender={5}
+                    contentContainerClassName={'pb-11'}
+                    renderItem={({ item }) => <ProductCardLandscape product={item} />}
+                    ItemSeparatorComponent={() => <Divider />}
+                    ListHeaderComponent={() => <Header product={product} />}
+                />
+                <Animated.View style={{ opacity: buttonAnim }}
+                    className="flex flex-row absolute bottom-0 bg-background-0">
+                    <Button variant="outline" className="w-1/2 rounded-none">
+                        <ButtonIcon as={MessageCircleIcon} />
+                        <ButtonText>Chat</ButtonText>
+                    </Button>
+                    <Button className="w-1/2 rounded-none">
+                        <ButtonIcon as={PhoneCallIcon} />
+                        <ButtonText>Call Now</ButtonText>
+                    </Button>
+                </Animated.View>
+                <Animated.View style={{ opacity: showFab }}>
+                    <Fab
+                        onPress={() =>
+                            scrollRef.current?.scrollToOffset({ offset: 0, animated: true })
+                        }
+                        className={`bottom-14 right-6 p-4 z-100`}
+                    >
+                        <FabIcon as={ChevronUpIcon} />
+                    </Fab>
+                </Animated.View>
+            </VStack>
+        </>
+
     )
 }
 
@@ -86,10 +113,9 @@ const Header = ({ product }: { product: Product }) => {
             <ImageSlider
                 pictures={[product?.image, products[2]?.image]}
                 getPicture={(item) => item}
-                onPress={(index) => router.push({ pathname: "/fullscreen", params: { index, id: product.id }})} />
+                onPress={(index) => router.push({ pathname: "/fullscreen", params: { index, id: product.id } })} />
             <Card className="pt-0">
                 <VStack className="gap-1">
-
                     <HStack className="justify-between">
                         <Heading numberOfLines={2}>
                             {product.name}
@@ -108,7 +134,7 @@ const Header = ({ product }: { product: Product }) => {
                         <Box className="flex flex-row items-center gap-2">
                             <Text size="2xs">{moment('2025-07-14 06:00:00').fromNow()}</Text>
                             <Icon size="sm" as={EyeIcon} />
-                            <Text size="sm">{product.views ?? 0}</Text>
+                            <Text size="sm">{product.view_count ?? 0}</Text>
                         </Box>
                     </HStack>
                 </VStack>

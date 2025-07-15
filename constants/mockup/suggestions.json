@@ -1,0 +1,39 @@
+[
+  {
+    "id": "1",
+    "keyword": "Bluetooth Earbuds",
+    "category": "Electronics",
+    "city": "Accra, Greater Accra"
+  },
+  {
+    "id": "2",
+    "keyword": "Smartphone G12",
+    "category": "Electronics",
+    "city": "Kintampo, Bono East"
+  },
+
+  {
+    "id": "3",
+    "keyword": "Cushion Sofa Set",
+    "category": "Home & Living",
+    "city": "Bogoso, Western"
+  },
+  {
+    "id": "4",
+    "keyword": "LED Floor Lamp",
+    "category": "Home & Living",
+    "city": "Accra, Greater Accra"
+  },
+  {
+    "id": "5",
+    "keyword": "Men's Denim Jacket",
+    "category": "Fashion",
+    "city": "Accra, Greater Accra"
+  },
+  {
+    "id": "6",
+    "keyword": "Women's Maxi Dress",
+    "category": "Fashion",
+    "city": "Obuasi, Ashanti"
+  }
+]

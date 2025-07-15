@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "name": "Electronics",
+    "image": "https://picsum.photos/seed/earbuds/400/300",
+    "city": "Accra, Greater Accra"
+  },
+  {
+    "id": "2",
+    "name": "Home & Living",
+    "image": "https://picsum.photos/seed/canvas/400/300",
+    "city": "Tarkwa, Western"
+  },
+  {
+    "id": "3",
+    "name": "Fashion",
+    "image": "https://picsum.photos/seed/denim/400/300",
+    "city": "Accra, Greater Accra"
+  },
+  {
+    "id": "4",
+    "name": "Kitchen & Appliances",
+    "image": "https://picsum.photos/seed/airfryer/400/300",
+    "city": "Kumas, Ashanti"
+  }
+]

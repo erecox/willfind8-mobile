@@ -127,7 +127,7 @@ const Header: React.FC<HeaderProps> = ({ translateY, logoOpacity }) => {
         <Animated.View style={{ opacity: logoOpacity }}>
           <LogoBar />
         </Animated.View>
-        <SearchBox onPress={() => router.push("/(account)/about-us")} />
+        <SearchBox onFocus={() => router.push({ pathname: "/(search)/search" })} />
       </VStack>
     </Animated.View>
   );

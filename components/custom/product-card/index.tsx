@@ -54,6 +54,8 @@ export function ProductCard({ product, onPress }: ProductCardProps) {
 }
 
 export function ProductCardLandscape({ product, onPress }: ProductCardProps) {
+  const [isFavourite, setIsFavourite] = useState(false);
+
   return (
     <Pressable
       onPress={onPress}
@@ -68,6 +70,7 @@ export function ProductCardLandscape({ product, onPress }: ProductCardProps) {
           contentFit="cover"
           cachePolicy="memory-disk"
         />
+        <FavouriteButton active={isFavourite} onToggleActive={setIsFavourite} />
       </Box>
 
       {/* Details Section */}

@@ -34,6 +34,12 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
+          <string>exp+willfind8</string>
+        </array>
+      </dict>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
           <string>com.googleusercontent.apps.181055438274-243ie9q3uj0f8igug6h73pusnmrg0t6c</string>
         </array>
       </dict>

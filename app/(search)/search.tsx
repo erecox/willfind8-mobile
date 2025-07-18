@@ -8,6 +8,7 @@ import { SearchBox, SuggestionDropdownList } from "@/components/custom/search-bo
 import { router } from "expo-router";
 import { Suggestion } from "@/types";
 import debounce from 'lodash.debounce';
+import { useRecentSearch } from "@/hooks/useRecentSearch";
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');
@@ -17,7 +18,7 @@ export default function SearchScreen() {
     setDebouncedQuery(text);
   }, 300);
 
-   const handleSearch = (text: string) => {
+  const handleSearch = (text: string) => {
     setQuery(text);
     debouncedSearch(text);
   };
@@ -37,8 +38,8 @@ export default function SearchScreen() {
           <SearchBox autoFocus value={query} onSearch={handleSearch} className="flex-1" />
         </Box>
       </Card>
-
       <SuggestionDropdownList
+      className="top-16"
         onSelect={onSelect}
         query={query}
         debouncedQuery={debouncedQuery} />

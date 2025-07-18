@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "field": "select",
+        "name": "Brand",
+        "value": "Apple"
+    },
+    {
+        "id": 2,
+        "field": "select",
+        "name": "STORAGE CAPACITY",
+        "value": "256GB"
+    },
+    {
+        "id": 3,
+        "field": "select",
+        "name": "Color",
+        "value": "Black"
+    },
+    {
+        "id": 4,
+        "field": "text",
+        "name": "Screen Size",
+        "value": "5.5\""
+    },
+    {
+        "id": 4,
+        "field": "text",
+        "name": "RAM",
+        "value": "8GB"
+    }
+]

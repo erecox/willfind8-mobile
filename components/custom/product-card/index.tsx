@@ -14,19 +14,20 @@ import { FavouriteButton } from "../favourite-button";
 
 type ProductCardProps = {
   product: Product;
+  className?: string;
   onPress?: () => void;
 };
 
-export function ProductCard({ product, onPress }: ProductCardProps) {
+export function ProductCard({ product, className, onPress }: ProductCardProps) {
   const [isFavourite, setIsFavourite] = useState(false);
   return (
     <Pressable
-      className={`flex-1 bg-background-0 dark:bg-background-700 w-full h-full sm:gap-2 gap-1 flex flex-col pb-2 lg:p-4`}
+      className={`flex-1 bg-background-0 dark:bg-background-700 w-full h-full sm:gap-2 gap-1 flex flex-col pb-2 lg:p-4 ${className}`}
       onPress={onPress}
     >
       <Box className="bg-background-50 dark:bg-background-800 aspect-[12/14]">
         <ExpoImage
-          source={product.image}
+          source={product.picture.full}
           alt={product.name}
           className={`flex-1 rounded bg-background-500`}
           cachePolicy="memory-disk"
@@ -64,7 +65,7 @@ export function ProductCardLandscape({ product, onPress }: ProductCardProps) {
       {/* Image Section */}
       <Box className="w-32 h-24 bg-background-50 dark:bg-background-800 rounded-md overflow-hidden">
         <ExpoImage
-          source={product.image}
+          source={product.picture.full}
           alt={product.name}
           className="w-full h-full object-cover"
           contentFit="cover"
@@ -84,7 +85,7 @@ export function ProductCardLandscape({ product, onPress }: ProductCardProps) {
         </Text>
 
         <HStack className="items-center gap-1">
-          <Icon as={MapPinIcon} size="xs" className="text-typography-500 dark:text-typography-400" />
+          <Icon as={MapPinIcon} size="2xs" className="text-typography-500 dark:text-typography-400" />
           <Text className="text-2xs text-typography-500 dark:text-typography-400">
             {product.city}
           </Text>
@@ -93,6 +94,37 @@ export function ProductCardLandscape({ product, onPress }: ProductCardProps) {
           <Button size="xs"><ButtonIcon as={PhoneCallIcon} /></Button>
           <Button size="xs" variant="outline"><ButtonIcon as={MessageCircleIcon} /></Button>
         </HStack>
+      </VStack>
+    </Pressable>
+  );
+}
+
+
+export function SimpleProductCard({ product, className, onPress }: ProductCardProps) {
+  const [isFavourite, setIsFavourite] = useState(false);
+  return (
+    <Pressable
+      className={`flex-1 bg-background-0 dark:bg-background-700 sm:gap-2 gap-1 flex flex-col pb-2 ${className}`}
+      onPress={onPress}
+    >
+      <Box className="bg-background-50 dark:bg-background-800 h-[80px]">
+        <ExpoImage
+          source={product.picture.full}
+          alt={product.name}
+          className={`flex-1 rounded bg-background-500`}
+          cachePolicy="memory-disk"
+        />
+        <FavouriteButton size="md" active={isFavourite} onToggleActive={setIsFavourite} />
+      </Box>
+      <VStack className="gap-1">
+        <HStack className="justify-between">
+          <Text numberOfLines={2} size="xs" className="text-typography-900 dark:text-typography-400">
+            {product.name}
+          </Text>
+        </HStack>
+        <Text size="xs" className="text-typography-900 dark:text-typography-400">
+          {"GHC"} {product.price}
+        </Text>
       </VStack>
     </Pressable>
   );

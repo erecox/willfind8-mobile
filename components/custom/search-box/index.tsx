@@ -1,4 +1,4 @@
-import { SearchIcon } from "@/components/ui/icon";
+import { ClockIcon, Icon, SearchIcon } from "@/components/ui/icon";
 import { Input, InputField, InputIcon } from "@/components/ui/input";
 import React from "react";
 import { Box } from "@/components/ui/box";
@@ -10,6 +10,8 @@ import { ActivityIndicator, FlatList } from "react-native";
 import { Divider } from "@/components/ui/divider";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { Pressable } from "@/components/ui/pressable";
+import { ArrowUpRight } from "lucide-react-native";
+import { useRecentSearch } from "@/hooks/useRecentSearch";
 
 interface SearchBoxProps {
     className?: string;
@@ -20,7 +22,8 @@ interface SearchBoxProps {
     onFocus?: () => void;
 }
 
-export function SearchBox({ className, autoFocus, value, placeholder = 'Search...',
+export function SearchBox({
+    className, autoFocus, value, placeholder = 'Search...',
     onFocus, onSearch }: SearchBoxProps) {
 
     return (
@@ -34,7 +37,7 @@ export function SearchBox({ className, autoFocus, value, placeholder = 'Search..
                     aria-disabled={true}
                     onChangeText={onSearch}
                     onPress={onFocus}
-                    placeholder="Search..." />
+                    placeholder={placeholder} />
             </Input>
         </Box>
     )
@@ -43,15 +46,17 @@ export function SearchBox({ className, autoFocus, value, placeholder = 'Search..
 interface SuggestionItemProps {
     suggestion: Suggestion
     query: string;
+    isRecent?: boolean;
     onPress?: () => void;
 }
 
-export function SuggestionItem({ suggestion, query, onPress }: SuggestionItemProps) {
+export function SuggestionItem({ suggestion, query, isRecent, onPress }: SuggestionItemProps) {
 
     return (
         <Pressable onPress={onPress} className="py-2">
-            <HStack>
+            <HStack className="justify-between items-center">
                 <HighlightText query={query} text={suggestion.keyword} />
+                <Icon color="gray" as={isRecent ? ClockIcon : ArrowUpRight} />
             </HStack>
         </Pressable>
     )
@@ -60,21 +65,30 @@ export function SuggestionItem({ suggestion, query, onPress }: SuggestionItemPro
 interface SuggestionDropdownListProps {
     debouncedQuery: string;
     query: string;
+    className?: string;
     onSelect?: (item: Suggestion) => void;
 }
 
-export function SuggestionDropdownList({ debouncedQuery, query, onSelect }: SuggestionDropdownListProps) {
-    const { data: suggestions = [], isFetching } = useSearchSuggestions(debouncedQuery);
+export function SuggestionDropdownList({ debouncedQuery, query, className, onSelect }: SuggestionDropdownListProps) {
+    const { data = [], isFetching } = useSearchSuggestions(debouncedQuery);
+    const { recentSearches, addRecent } = useRecentSearch();
+    const suggestions = [...recentSearches.filter((item) => item.keyword.toLowerCase().includes(query)), ...data];
+
+    const handleSelection = (item: Suggestion) => {
+        addRecent({ ...item, is_recent: true });
+        if (onSelect) onSelect(item);
+    }
 
     const renderSuggestionItem = ({ item }: { item: Suggestion }) => (
         <SuggestionItem
-            onPress={() => onSelect && onSelect(item)}
+            onPress={() => handleSelection(item)}
             query={query}
-            suggestion={item} />
+            suggestion={item}
+            isRecent={item.is_recent} />
     );
 
-    return (isFetching &&
-        <Card size="sm">
+    return (isFetching || suggestions.length ?
+        <Card size="sm" className={`absolute z-1000 w-full ${className}`}>
             <FlatList<Suggestion>
                 data={suggestions}
                 renderItem={renderSuggestionItem}
@@ -84,6 +98,6 @@ export function SuggestionDropdownList({ debouncedQuery, query, onSelect }: Sugg
                 ListFooterComponent={() => (isFetching &&
                     <Box className="p-1"><ActivityIndicator animating /></Box>)}
             />
-        </Card>
+        </Card> : <></>
     )
 }

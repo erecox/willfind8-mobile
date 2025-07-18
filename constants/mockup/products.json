@@ -5,7 +5,9 @@
     "description": "Compact wireless earbuds with noise cancellation.",
     "price": 49.99,
     "category": "Electronics",
-    "image": "https://picsum.photos/seed/earbuds/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/earbuds/400/300"
+    },
     "city": "Accra, Greater Accra"
   },
   {
@@ -14,7 +16,9 @@
     "description": "6.5-inch display, 128GB storage, and dual cameras.",
     "price": 299.99,
     "category": "Electronics",
-    "image": "https://picsum.photos/seed/smartphone/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/smartphone/400/300"
+    },
     "city": "Kintampo, Bono East"
   },
   {
@@ -23,7 +27,9 @@
     "description": "Ergonomic RGB mouse with 6 programmable buttons.",
     "price": 29.99,
     "category": "Electronics",
-    "image": "https://picsum.photos/seed/mouse/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/mouse/400/300"
+    },
     "city": "Tarkoradi, Central"
   },
   {
@@ -32,7 +38,9 @@
     "description": "Water-resistant with heart rate tracking and GPS.",
     "price": 89.99,
     "category": "Electronics",
-    "image": "https://picsum.photos/seed/watch/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/watch/400/300"
+    },
     "city": "Agona, Central"
   },
   {
@@ -41,7 +49,9 @@
     "description": "Fast-charging pad compatible with all Qi devices.",
     "price": 19.99,
     "category": "Electronics",
-    "image": "https://picsum.photos/seed/charger/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/charger/400/300"
+    },
     "city": "Edubease, Ashanti"
   },
   {
@@ -50,7 +60,9 @@
     "description": "3-piece set with soft cushions and solid wood frame.",
     "price": 799.99,
     "category": "Home & Living",
-    "image": "https://picsum.photos/seed/sofa/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/sofa/400/300"
+    },
     "city": "Bogoso, Western"
   },
   {
@@ -59,7 +71,9 @@
     "description": "Minimalist design with adjustable brightness.",
     "price": 59.99,
     "category": "Home & Living",
-    "image": "https://picsum.photos/seed/lamp/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/lamp/400/300"
+    },
     "city": "Accra, Greater Accra"
   },
   {
@@ -68,7 +82,9 @@
     "description": "3-piece set of abstract paintings on canvas.",
     "price": 45.00,
     "category": "Home & Living",
-    "image": "https://picsum.photos/seed/canvas/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/canvas/400/300"
+    },
     "city": "Tarkwa, Western"
   },
   {
@@ -77,7 +93,9 @@
     "description": "5-tier open-shelf design for books and decor.",
     "price": 120.00,
     "category": "Home & Living",
-    "image": "https://picsum.photos/seed/bookshelf/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/bookshelf/400/300"
+    },
     "city": "Tarkwa, Western"
   },
   {
@@ -86,7 +104,9 @@
     "description": "Soft shaggy rug ideal for living rooms.",
     "price": 60.00,
     "category": "Home & Living",
-    "image": "https://picsum.photos/seed/rug/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/rug/400/300"
+    },
     "city": "Accra, Greater Accra"
   },
   {
@@ -95,7 +115,9 @@
     "description": "Classic fit with button closure and chest pockets.",
     "price": 39.99,
     "category": "Fashion",
-    "image": "https://picsum.photos/seed/denim/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/denim/400/300"
+    },
     "city": "Accra, Greater Accra"
   },
   {
@@ -104,7 +126,9 @@
     "description": "Lightweight fabric with floral prints.",
     "price": 49.99,
     "category": "Fashion",
-    "image": "https://picsum.photos/seed/dress/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/dress/400/300"
+    },
     "city": "Obuasi, Ashanti"
   },
   {
@@ -113,7 +137,9 @@
     "description": "Breathable mesh shoes with memory foam insoles.",
     "price": 69.99,
     "category": "Fashion",
-    "image": "https://picsum.photos/seed/shoes/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/shoes/400/300"
+    },
     "city": "Obuasi, Ashanti"
   },
   {
@@ -122,7 +148,9 @@
     "description": "Genuine leather wallet with 8 card slots.",
     "price": 24.99,
     "category": "Fashion",
-    "image": "https://picsum.photos/seed/wallet/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/wallet/400/300"
+    },
     "city": "Konogo, Ashanti"
   },
   {
@@ -131,7 +159,9 @@
     "description": "Adjustable baseball cap with moisture-wicking fabric.",
     "price": 14.99,
     "category": "Fashion",
-    "image": "https://picsum.photos/seed/cap/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/cap/400/300"
+    },
     "city": "Obuasi, Ashanti"
   },
   {
@@ -140,7 +170,9 @@
     "description": "Digital touch screen with 7 preset cooking modes.",
     "price": 99.99,
     "category": "Kitchen & Appliances",
-    "image": "https://picsum.photos/seed/airfryer/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/airfryer/400/300"
+    },
     "city": "Kumas, Ashanti"
   },
   {
@@ -149,7 +181,9 @@
     "description": "1.7L electric kettle with auto shut-off.",
     "price": 39.99,
     "category": "Kitchen & Appliances",
-    "image": "https://picsum.photos/seed/kettle/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/kettle/400/300"
+    },
     "city": "Kumas, Ashanti"
   },
   {
@@ -158,7 +192,9 @@
     "description": "High-carbon stainless steel blades with block.",
     "price": 59.99,
     "category": "Kitchen & Appliances",
-    "image": "https://picsum.photos/seed/knifeset/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/knifeset/400/300"
+    },
     "city": "Accra, Greater Accra"
   },
   {
@@ -167,7 +203,9 @@
     "description": "700W compact microwave with 6 power levels.",
     "price": 119.99,
     "category": "Kitchen & Appliances",
-    "image": "https://picsum.photos/seed/microwave/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/microwave/400/300"
+    },
     "city": "Tema, Greater Accra"
   },
   {
@@ -176,7 +214,9 @@
     "description": "10-piece set with heat-resistant handles.",
     "price": 89.99,
     "category": "Kitchen & Appliances",
-    "image": "https://picsum.photos/seed/cookware/400/300",
+    "picture": {
+      "full": "https://picsum.photos/seed/cookware/400/300"
+    },
     "city": "Lapaz, Greater Accra"
   }
 ]

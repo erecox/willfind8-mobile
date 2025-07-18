@@ -1,147 +1,101 @@
-import { router, Stack, useLocalSearchParams } from "expo-router";
-import React, { useRef, useState } from "react";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { useMemo, useRef, useCallback, useState } from "react";
+import { Animated, FlatList } from "react-native";
 import products from "@/constants/mockup/products.json";
-import { Product } from "@/types";
-import { Animated, FlatList, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
+import specs from "@/constants/mockup/product-specs.json";
 import { ProductCardLandscape } from "@/components/custom/product-card";
-import { Divider } from "@/components/ui/divider";
-import { Box } from "@/components/ui/box";
-import { Card } from "@/components/ui/card";
-import { ImageSlider } from "@/components/ui/image-slider";
-import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
-import { Text } from "@/components/ui/text";
-import { ChevronUpIcon, EyeIcon, Icon, MessageCircleIcon } from "@/components/ui/icon";
-import { MapPinIcon, PhoneCallIcon } from "lucide-react-native";
-import { Heading } from "@/components/ui/heading";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import moment from "moment";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation"; // path to your hook
+import { Product, ProductSpec } from "@/types";
+import { ProductHeader } from "@/components/custom/product-header";
 import { Fab, FabIcon } from "@/components/ui/fab";
+import { ChevronUpIcon, Icon } from "@/components/ui/icon";
+import { HStack } from "@/components/ui/hstack";
+import { Pressable } from "react-native";
+import { HeartIcon, MoreVerticalIcon } from "lucide-react-native";
+import { VStack } from "@/components/ui/vstack";
+import { BottomFabs } from "@/components/custom/bottom-fabs";
+import { ProductActionSheet } from "@/components/custom/product-action-sheet";
 
-export default function AdDetailsScreen() {
-    const { id }: { id: string; } = useLocalSearchParams();
-    const product: Product = products.findLast((item) => item.id === id);
+export default function ProductDetailsScreen() {
+    const { id } = useLocalSearchParams();
+    const scrollRef = useRef<FlatList>(null);
 
-    const [scrolling, setScrolling] = useState(false);
-    const buttonAnim = useRef(new Animated.Value(1)).current;
-    const scrollTimeout = useRef<number | null>(null);
-    const scrollY = useRef(new Animated.Value(0)).current;
-    const scrollRef = useRef<FlatList>(null); // Ref for the FlatList
+    const [showActionsheet,setShowActionsheet] = useState(false);
+    const {
+        showFab,
+        scrolling,
+        buttonAnim,
+        handleScroll,
+    } = useScrollAnimation();
 
-    const showFab = scrollY.interpolate({
-        inputRange: [10, 300],
-        outputRange: [0, 1],
-        extrapolate: "clamp",
-    });
+    // Avoid mutation
+    const product = useMemo(() => {
+        const found = products.findLast((item) => item.id === id) as Product;
+        if (!found) return null;
+        return {
+            ...found,
+            specs: specs as ProductSpec[],
+        };
+    }, [id]);
 
-    const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-        if (!scrolling) {
-            setScrolling(true);
-            Animated.timing(buttonAnim, {
-                toValue: 0,
-                duration: 200,
-                useNativeDriver: true,
-            }).start();
-        }
+    const keyExtractor = useCallback((item: Product, index: any) => item.id.toString(), []);
+    const renderItem = useCallback(
+        ({ item }: { item: Product }) => <ProductCardLandscape product={item} />,
+        []
+    );
 
-        // Reset the timeout on each scroll
-        if (scrollTimeout.current) {
-            clearTimeout(scrollTimeout.current);
-        }
+    const headerComponent = useMemo(() => {
+        return product ? <ProductHeader product={product} /> : null;
+    }, [product]);
+    const fabStyle = useMemo(() => ({ opacity: showFab }), [showFab]);
+    const buttonAnimStyle = useMemo(() => ({ opacity: buttonAnim }), [buttonAnim]);
 
-        // When scroll slows or stops (after 500ms), show the button
-        scrollTimeout.current = setTimeout(() => {
-            setScrolling(false);
-            Animated.timing(buttonAnim, {
-                toValue: 1,
-                duration: 200,
-                useNativeDriver: true,
-            }).start();
-        }, 300);
-    };
+    if (!product) return null;
 
     return (
-        <>
-            <VStack className="flex-1">
-                <Stack.Screen options={{ title: product?.category }} />
-                <Animated.FlatList
-                    ref={scrollRef}
-                    data={products}
-                    onScroll={Animated.event(
-                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                        {
-                            useNativeDriver: true,
-                            listener: handleScroll,
-                        })}
-                    scrollEventThrottle={16}
-                    initialNumToRender={5}
-                    contentContainerClassName={'pb-11'}
-                    renderItem={({ item }) => <ProductCardLandscape product={item} />}
-                    ItemSeparatorComponent={() => <Divider />}
-                    ListHeaderComponent={() => <Header product={product} />}
-                />
-                <Animated.View style={{ opacity: buttonAnim }}
-                    className="flex flex-row absolute bottom-0 bg-background-0">
-                    <Button variant="outline" className="w-1/2 rounded-none">
-                        <ButtonIcon as={MessageCircleIcon} />
-                        <ButtonText>Chat</ButtonText>
-                    </Button>
-                    <Button className="w-1/2 rounded-none">
-                        <ButtonIcon as={PhoneCallIcon} />
-                        <ButtonText>Call Now</ButtonText>
-                    </Button>
-                </Animated.View>
-                <Animated.View style={{ opacity: showFab }}>
-                    <Fab
-                        onPress={() =>
-                            scrollRef.current?.scrollToOffset({ offset: 0, animated: true })
-                        }
-                        className={`bottom-14 right-6 p-4 z-100`}
-                    >
-                        <FabIcon as={ChevronUpIcon} />
-                    </Fab>
-                </Animated.View>
-            </VStack>
-        </>
+        <VStack className="flex-1">
+            <Stack.Screen options={{
+                title: product.category,
+                headerRight(props) {
+                    return (<HStack className="gap-4">
+                        <Pressable><Icon as={HeartIcon} /></Pressable>
+                        <Pressable onPress={()=>setShowActionsheet(true)} >
+                            <Icon as={MoreVerticalIcon} />
+                        </Pressable>
+                    </HStack>)
+                },
+            }} />
 
-    )
-}
+            <Animated.FlatList
+                ref={scrollRef}
+                data={products}
+                contentContainerClassName='pb-11'
+                keyExtractor={keyExtractor}
+                renderItem={renderItem}
+                ListHeaderComponent={headerComponent}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                bounces={false}
+            />
 
-const Header = ({ product }: { product: Product }) => {
-    return (
-        <VStack>
-            <ImageSlider
-                pictures={[product?.image, products[2]?.image]}
-                getPicture={(item) => item}
-                onPress={(index) => router.push({ pathname: "/fullscreen", params: { index, id: product.id } })} />
-            <Card className="pt-0">
-                <VStack className="gap-1">
-                    <HStack className="justify-between">
-                        <Heading numberOfLines={2}>
-                            {product.name}
-                        </Heading>
-                    </HStack>
-                    <Text size="md" className="text-typography-800">
-                        {"GHC"} {product.price}
-                    </Text>
-                    <HStack className="gap-1 items-center justify-between">
-                        <HStack className="items-center gap-1">
-                            <Icon size="xs" as={MapPinIcon} />
-                            <Text size="xs">
-                                {product.city}
-                            </Text>
-                        </HStack>
-                        <Box className="flex flex-row items-center gap-2">
-                            <Text size="2xs">{moment('2025-07-14 06:00:00').fromNow()}</Text>
-                            <Icon size="sm" as={EyeIcon} />
-                            <Text size="sm">{product.view_count ?? 0}</Text>
-                        </Box>
-                    </HStack>
-                </VStack>
-            </Card>
-            <Card className="my-2">
+            <Animated.View style={fabStyle}>
+                <Fab
+                    onPress={() =>
+                        scrollRef.current?.scrollToOffset({ offset: 0, animated: true })
+                    }
+                    className={'bottom-14 right-6'}
+                >
+                    <FabIcon as={ChevronUpIcon} />
+                </Fab>
+            </Animated.View>
 
-            </Card>
+            <Animated.View style={buttonAnimStyle}>
+                <BottomFabs />
+            </Animated.View>
+            <ProductActionSheet
+                showActionsheet={showActionsheet}
+                handleClose={() => setShowActionsheet(false)} />
         </VStack>
-    )
-};
+    );
+}

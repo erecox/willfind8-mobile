@@ -1,4 +1,4 @@
-import { Comment } from "@/types";
+import { Comment, Thread } from "@/types";
 import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
 import { TouchableOpacity } from "react-native";
 import { Badge, BadgeIcon, BadgeText } from "@/components/ui/badge";
@@ -11,10 +11,10 @@ import { Heading } from "@/components/ui/heading";
 import { Box } from "@/components/ui/box";
 
 interface props {
-    comments: Comment[]
+    threads: Thread[]
 }
 export function ProductCommentCard({
-    comments
+    threads
 }: props) {
 
     return (

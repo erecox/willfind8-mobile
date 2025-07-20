@@ -1,13 +1,16 @@
 import React from "react";
 import { Stack } from "expo-router";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
+import { BackButton } from "@/components/custom/back-button";
 
 
 export default function AccountLayout() {
 
   return (
     <SafeAreaView>
-      <Stack>
+      <Stack screenOptions={{
+                headerLeft: BackButton,
+              }}>
       {/* Account Screens */}
       <Stack.Screen name="about-us" options={{ title: "About Us" }} />
       <Stack.Screen name="business-information" options={{ title: "Business Information" }} />

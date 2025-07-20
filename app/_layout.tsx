@@ -23,7 +23,7 @@ export default function RootLayout() {
         <GluestackUIProvider>
           <LoaderProvider>
             <Stack screenOptions={{ animation: "slide_from_right", headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="(tabs)"  options={{title:"Home"}}/>
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(account)" />
               <Stack.Screen name="(search)" />

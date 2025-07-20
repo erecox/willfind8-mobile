@@ -1,3 +1,4 @@
+import { BackButton } from "@/components/custom/back-button";
 import { ChevronLeftIcon, Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { SafeAreaView } from "@/components/ui/safe-area-view";
@@ -11,20 +12,7 @@ export default function AdsLayout() {
     <SafeAreaView allowBottom>
       <Stack
         screenOptions={{
-          headerLeft:
-            Platform.OS === "ios"
-              ? (props) => {
-                  return (
-                    <Pressable
-                      onPress={() => props.canGoBack && router.back()}
-                      className="flex flex-row items-center"
-                    >
-                      <Icon size="2xl" as={ChevronLeftIcon} />
-                      <Text size="lg">{props.label}</Text>
-                    </Pressable>
-                  );
-                }
-              : undefined,
+          headerLeft: BackButton,
         }}
       >
         <Stack.Screen name="[id]" />

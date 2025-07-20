@@ -23,7 +23,6 @@ export default function ProductDetailsScreen() {
     const [showActionsheet,setShowActionsheet] = useState(false);
     const {
         showFab,
-        scrolling,
         buttonAnim,
         handleScroll,
     } = useScrollAnimation();

@@ -47,7 +47,6 @@ export const useScrollAnimation = () => {
 
     return {
         showFab,
-        scrolling,
         buttonAnim,
         handleScroll,
     };

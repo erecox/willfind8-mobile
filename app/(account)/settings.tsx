@@ -22,15 +22,11 @@ export default function SettingsScreen() {
 
         <Box className="rounded-lg mt-5 w-full self-center">
           <VStack>
-            <ActionBox as={FileChartPieIcon} title="My Ads" />
+            <ActionBox as={FileChartPieIcon} title="Personal Information" />
             <Divider />
-            <ActionBox as={MessagesSquareIcon} title="Messages" />
+            <ActionBox as={MessagesSquareIcon} title="Phone number" />
             <Divider />
-            <ActionBox as={StarIcon} title="Ratings & Reviews" />
-            <Divider />
-            <ActionBox as={HeartHandshakeIcon} title="Followed Sellers" />
-            <Divider />
-            <ActionBox as={ViewIcon} title="Recently Viewed" />
+            <ActionBox as={StarIcon} title="Change Password" />
           </VStack>
         </Box>
       </ScrollView>

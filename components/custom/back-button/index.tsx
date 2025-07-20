@@ -9,10 +9,9 @@ export function BackButton(props: any) {
   return Platform.OS === "ios" ? (
     <Pressable
       onPress={() => props.canGoBack && router.back()}
-      className="flex flex-row items-center -m-5"
+      className="flex flex-row items-center -m-4"
     >
       <Icon size="2xl" as={ChevronLeftIcon} />
-      <Text size="lg">Back</Text>
     </Pressable>
   ) : undefined;
 }

@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
 import { createImage } from '@gluestack-ui/image';
-import { Platform, Image as RNImage } from 'react-native';
+import { Platform} from 'react-native';
+import {Image as RNImage } from "expo-image";
 import { tva } from '@gluestack-ui/nativewind-utils/tva';
 import type { VariantProps } from '@gluestack-ui/nativewind-utils';
 

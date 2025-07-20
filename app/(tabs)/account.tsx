@@ -21,7 +21,7 @@ import { ActionBox } from "@/components/custom/action-box";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
 import { Center } from "@/components/ui/center";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallbackText, AvatarImage } from "@/components/ui/avatar";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Redirect, router } from "expo-router";
 import { Alert, TouchableOpacity } from "react-native";
@@ -65,8 +65,9 @@ export default function AccountLayout() {
           <TouchableOpacity onPress={handleSettingPress} activeOpacity={.5}>
             <Center>
               <Avatar size="lg">
-                <AvatarImage source={{ uri: 'https://gluestack.github.io/public-blog-video-assets/yoga.png', }}
-                  alt="image" />
+                <AvatarFallbackText>{user.name}</AvatarFallbackText>
+                <AvatarImage cachePolicy={'disk'} source={'https://gluestack.github.io/public-blog-video-assets/yoga.png'}
+                  alt="photo" />
               </Avatar>
               <Heading size="md">{user?.name}</Heading>
               {user?.email && <Text size="sm" className="mb-4">{user?.email}</Text>}

@@ -106,7 +106,7 @@ export default function HomeScreen() {
           onPress={() =>
             scrollRef.current?.scrollToOffset({ offset: 0, animated: true })
           }
-          className={`sm:right-10 right-6 p-4 z-0`}
+          className={`right-4`}
         >
           <Icon as={ChevronUp} className="text-typography-0" />
         </Fab>

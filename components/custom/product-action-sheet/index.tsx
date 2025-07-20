@@ -1,5 +1,4 @@
 import { Divider } from "@/components/ui/divider";
-import { HelpCircleIcon } from "@/components/ui/icon";
 import {
     Actionsheet,
     ActionsheetBackdrop,
@@ -9,11 +8,10 @@ import {
     ActionsheetIcon,
     ActionsheetItem,
     ActionsheetItemText,
-    ActionsheetSectionHeaderText,
     ActionsheetSectionList
 } from "@/components/ui/select/select-actionsheet";
-import { ExternalPathString, RelativePathString, router } from "expo-router";
-import { BadgeHelpIcon, HelpingHandIcon, LucideIcon } from "lucide-react-native";
+import { router } from "expo-router";
+import { HelpingHandIcon, LucideIcon } from "lucide-react-native";
 
 interface props {
     handleClose?: () => void;

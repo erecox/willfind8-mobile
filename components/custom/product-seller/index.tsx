@@ -25,7 +25,8 @@ export function ProductSeller({ seller }: props) {
                     <HStack className="gap-2">
                         <Avatar>
                             <AvatarImage
-                                defaultSource={require('@/assets/images/icon.png')}
+                                cachePolicy="disk"
+                                placeholder={require('@/assets/images/icon.png')}
                                 source={{ uri: seller.photo?.full }} />
                         </Avatar>
                         <VStack>
@@ -48,7 +49,7 @@ export function ProductSeller({ seller }: props) {
                 <FlatList
                     contentContainerClassName="gap-2"
                     horizontal
-                    data={products}
+                    data={products.slice(0,5)}
                     renderItem={({ item }: any) => <SimpleProductCard product={item} />} />
             </Card>
         </VStack>

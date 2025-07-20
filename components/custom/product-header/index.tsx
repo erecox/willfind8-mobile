@@ -11,17 +11,19 @@ import { MapPinIcon } from "lucide-react-native";
 import moment from "moment";
 import { ProductSpecCard } from "../product-specs-card";
 import ReadMore from "@fawazahmed/react-native-read-more";
-import { Product, User } from "@/types";
+import { Comment, Product, User } from "@/types";
 import { ProductSeller } from "../product-seller";
 import seller from "@/constants/mockup/seller.json";
 import { formatCount } from "@/utils/product-helper";
+import { ProductCommentCard } from "../product-comment-card";
 
 interface props {
     product: Product
+    comments?: Comment[]
 }
 
-export function ProductHeader({ product }: props) {
-    product.seller = seller as User;
+export function ProductHeader({ product, comments }: props) {
+    product.seller = seller as unknown as User;
 
     return (
         <VStack>
@@ -57,6 +59,7 @@ export function ProductHeader({ product }: props) {
                                 <Text size="xs">{formatCount(product.view_count ?? 0)}</Text>
                             </Box>
                         </HStack>
+                        <ProductCommentCard comments={comments ?? []} />
                     </VStack>
                 </Card>
                 <ProductSpecCard data={product.specs ?? []} />

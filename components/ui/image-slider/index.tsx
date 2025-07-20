@@ -20,7 +20,6 @@ interface ImageSliderPropsType<T> {
 
 export function ImageSlider<T>({
     initialIndex = 0,
-    count_pictures,
     pictures,
     fullscreen = false,
     onPress,
@@ -38,7 +37,8 @@ export function ImageSlider<T>({
             <Image
                 className="w-full h-full"
                 alt="Product"
-                resizeMode="contain"
+                contentFit={fullscreen ? "contain" : "cover"}
+                cachePolicy="disk"
                 source={getPicture(item, index)}
             />
         </Pressable>

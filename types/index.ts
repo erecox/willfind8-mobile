@@ -32,7 +32,7 @@ export type Product = {
 export type AccountProvider = 'app' | 'google' | 'facebook';
 
 export type User = {
-  id: string;
+  id: number;
   provider?: AccountProvider;
   google_id?: string | null;
   facebook_id?: string | null;
@@ -61,3 +61,21 @@ export type ProductSpec = {
   field: Field,
   value: string | string[] | number;
 };
+
+export type Comment = {
+  id: number,
+  user_id: number,
+  body: string;
+  user_name: string,
+  avatar_url?: string,
+};
+
+export type Thread = {
+  id: number,
+  product_id: number;
+  user_id: number;
+  body: string;
+  replies: Comment[];
+  user_name: string,
+  avatar_url?: string,
+}

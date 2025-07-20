@@ -1,0 +1,56 @@
+[
+  {
+    "id": 101,
+    "product_id": 1,
+    "user_id": 12,
+    "user_name": "Sarah Mensah",
+    "avatar_url": "https://example.com/avatars/sarah.jpg",
+    "timestamp": "2025-07-15T14:22:00Z",
+    "body": "This product exceeded my expectations. Highly recommended!",
+    "replies": [
+      {
+        "id": 201,
+        "user_id": 14,
+        "user_name": "Kwame Appiah",
+        "avatar_url": "https://example.com/avatars/kwame.jpg",
+        "timestamp": "2025-07-15T15:10:00Z",
+        "body": "I agree, it works perfectly."
+      },
+      {
+        "id": 202,
+        "user_id": 15,
+        "user_name": "Ama Boateng",
+        "avatar_url": "https://example.com/avatars/ama.jpg",
+        "timestamp": "2025-07-15T15:42:00Z",
+        "body": "Same here, very satisfied."
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "product_id": 1,
+    "user_id": 16,
+    "user_name": "Kojo Badu",
+    "avatar_url": "https://example.com/avatars/kojo.jpg",
+    "timestamp": "2025-07-15T16:05:00Z",
+    "body": "Not what I expected. The quality is disappointing.",
+    "replies": [
+      {
+        "id": 203,
+        "user_id": 17,
+        "user_name": "Yaw Owusu",
+        "avatar_url": "https://example.com/avatars/yaw.jpg",
+        "timestamp": "2025-07-15T16:45:00Z",
+        "body": "I also had issues with it. Poor quality."
+      },
+      {
+        "id": 204,
+        "user_id": 18,
+        "user_name": "Akua Serwaa",
+        "avatar_url": "https://example.com/avatars/akua.jpg",
+        "timestamp": "2025-07-15T17:00:00Z",
+        "body": "Mine broke after two days. Wouldn't buy again."
+      }
+    ]
+  }
+]

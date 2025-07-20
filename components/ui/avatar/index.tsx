@@ -2,7 +2,7 @@
 import React from 'react';
 import { createAvatar } from '@gluestack-ui/avatar';
 
-import { View, Text, Image, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 
 import { tva } from '@gluestack-ui/nativewind-utils/tva';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@gluestack-ui/nativewind-utils/withStyleContext';
 const SCOPE = 'AVATAR';
 import type { VariantProps } from '@gluestack-ui/nativewind-utils';
+import { Image } from 'expo-image';
 
 const UIAvatar = createAvatar({
   Root: withStyleContext(View, SCOPE),
@@ -154,6 +155,7 @@ const AvatarImage = React.forwardRef<
       className={avatarImageStyle({
         class: className,
       })}
+
       // @ts-expect-error : This is a workaround to fix the issue with the image style on web.
       style={
         Platform.OS === 'web'

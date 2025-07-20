@@ -83,7 +83,7 @@ export default function ProductDetailsScreen() {
                     onPress={() =>
                         scrollRef.current?.scrollToOffset({ offset: 0, animated: true })
                     }
-                    className={'bottom-14 right-6'}
+                    className={'bottom-14 right-4'}
                 >
                     <FabIcon as={ChevronUpIcon} />
                 </Fab>

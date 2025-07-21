@@ -55,6 +55,13 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.181055438274-243ie9q3uj0f8igug6h73pusnmrg0t6c"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "$(PRODUCT_NAME) would like to use your camera to share image in posts and messages.",
+          "photosPermission": "$(PRODUCT_NAME) would like to use your device gallery to attach image in a posts and messages."
+        }
       ]
     ],
     "experiments": {

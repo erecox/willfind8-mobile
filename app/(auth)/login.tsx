@@ -28,43 +28,63 @@ import { GoogleLoginButton } from "@/components/custom/google-login-button";
 import { LogoIcon } from "@/components/custom/logo-icon";
 import { Link, LinkText } from "@/components/ui/link";
 import { ForgotPasswordModal } from "@/components/modals/forgot-password";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Alert } from "react-native";
 
 const LoginSchema = Yup.object().shape({
-  loginId: Yup.string().required("Login ID is required."),
+  email: Yup.string()
+    .email("Please enter a valid email address")
+    .required("Email is required"),
   password: Yup.string()
-    .min(6, "Atleast 6 characters are required.")
-    .required("Password is required."),
+    .min(6, "At least 6 characters are required")
+    .required("Password is required"),
 });
 
 export default function LoginLayout() {
   const { loginId: signInLoginId } = useLocalSearchParams();
   const [showPassword1, setShowPassword1] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [showForgotPassModel, setShowForgotPassModel] = useState(false);
-  const { setUser } = useAuthStore();
+  const { loginAsync, isLoading, error, clearError } = useAuthStore();
 
   const handleCreateAccount = () => {
     router.push({
       'pathname': '/signup',
-      params: { loginId: formik.values.loginId }
+      params: { loginId: formik.values.email }
     });
   }
+
   const formik = useFormik({
     initialValues: {
-      loginId: signInLoginId?.toString() || "",
+      email: signInLoginId?.toString() || "",
       password: ""
     },
     validationSchema: LoginSchema,
-    onSubmit: (values) => {
-      setSubmitting(true);
-      // handle login here
-      console.log("values", values);
-      setUser({ ...values, id: "23", name: 'Eric Mensah', phone: values.loginId, email: values.loginId });
-      if (router.canGoBack()) router.back();
-      else router.push("/(tabs)");
+    onSubmit: async (values) => {
+      try {
+        clearError();
+        await loginAsync(values);
+        
+        // Navigate back or to main screen on success
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.push("/(tabs)");
+        }
+      } catch (error: any) {
+        // Error is handled in the auth store
+        Alert.alert(
+          "Login Failed", 
+          error.response?.data?.message || "Please check your credentials and try again."
+        );
+      }
     },
   });
+
+  // Show error if exists
+  React.useEffect(() => {
+    if (error) {
+      Alert.alert("Login Error", error);
+    }
+  }, [error]);
 
   return (
     <SafeAreaView className="flex-1">
@@ -84,27 +104,27 @@ export default function LoginLayout() {
             </Text>
           </Center>
 
-          <FormControl isInvalid={!!(formik.touched.loginId && formik.errors.loginId)} className="w-full">
+          <FormControl isInvalid={!!(formik.touched.email && formik.errors.email)} className="w-full">
             <FormControlLabel>
               <FormControlLabelText size="sm">
-                Login ID
+                Email
               </FormControlLabelText>
             </FormControlLabel>
             <Input>
               <InputField
                 type={"text"}
                 keyboardType="email-address"
-                value={formik.values.loginId}
-                onChangeText={formik.handleChange("loginId")}
-                onBlur={formik.handleBlur("loginId")}
-                placeholder="Enter your email or phone"
+                value={formik.values.email}
+                onChangeText={formik.handleChange("email")}
+                onBlur={formik.handleBlur("email")}
+                placeholder="Enter your email address"
               />
             </Input>
-            {formik.touched.loginId && formik.errors.loginId && (
+            {formik.touched.email && formik.errors.email && (
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText size="xs">
-                  {formik.errors.loginId}
+                  {formik.errors.email}
                 </FormControlErrorText>
               </FormControlError>
             )}
@@ -150,11 +170,11 @@ export default function LoginLayout() {
 
           <Button
             className="mt-8 w-full"
-            isDisabled={!formik.isValid || submitting}
+            isDisabled={!formik.isValid || isLoading}
             onPress={formik.handleSubmit as any}
           >
             <ButtonText>Login</ButtonText>
-            <ActivityIndicator animating={submitting} />
+            <ActivityIndicator animating={isLoading} />
           </Button>
 
           <Link onPress={() => setShowForgotPassModel(true)} className="mt-4" >
@@ -170,7 +190,7 @@ export default function LoginLayout() {
             <ButtonText>Create An Account</ButtonText>
           </Button>
         </Box>
-        <Box className="p-5 gap-5 rounded-lg">
+        <Box className="p-5 gap-5">
           <GoogleLoginButton />
           {/* <FacebookLoginButton /> */}
 

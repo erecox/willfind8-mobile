@@ -1,0 +1,644 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id                String              @id @default(cuid())
+  email             String?             @unique
+  username          String              @unique
+  password          String?
+  firstName         String?
+  lastName          String?
+  phone             String?             @unique
+  avatar            String?
+  isActive          Boolean             @default(true)
+  isVerified        Boolean             @default(false)
+  emailVerified     Boolean             @default(false)
+  phoneVerified     Boolean             @default(false)
+  role              UserRole            @default(USER)
+  provider          AuthProvider        @default(LOCAL)
+  providerId        String?
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
+  emailVerificationToken String?
+  phoneVerificationToken String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  ads               Ad[]
+  savedAds          SavedAd[]
+  adInteractions    AdInteraction[]
+  orders            Order[]
+  promotionUsages   PromotionUsage[]
+  chatsSender       Chat[]              @relation("ChatSender")
+  chatsReceiver     Chat[]              @relation("ChatReceiver")
+  sentMessages      ChatMessage[]       @relation("MessageSender")
+  receivedMessages  ChatMessage[]       @relation("MessageReceiver")
+  threads           Thread[]
+  threadMessages    ThreadMessage[]
+  notifications     Notification[]
+  pushTokens        UserPushToken[]
+  sellerProfile     SellerProfile?
+  sellerReviews     SellerReview[]      @relation("ReviewedSeller")
+  givenReviews      SellerReview[]      @relation("ReviewGiver")
+  adComments        AdComment[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  FACEBOOK
+}
+
+// Seller Management
+model SellerProfile {
+  id                String              @id @default(cuid())
+  userId            String              @unique
+  businessName      String?
+  businessType      String?
+  description       String?
+  website           String?
+  socialMedia       Json?
+  rating            Float               @default(0)
+  totalReviews      Int                 @default(0)
+  isVerified        Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  // Relations
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verification      SellerVerification?
+  
+  @@map("seller_profiles")
+}
+
+model SellerReview {
+  id          String    @id @default(cuid())
+  sellerId    String
+  reviewerId  String
+  rating      Int       @db.SmallInt
+  comment     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  seller      User      @relation("ReviewedSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  reviewer    User      @relation("ReviewGiver", fields: [reviewerId], references: [id], onDelete: Cascade)
+  
+  @@unique([sellerId, reviewerId])
+  @@map("seller_reviews")
+}
+
+model SellerVerification {
+  id                String              @id @default(cuid())
+  sellerProfileId   String              @unique
+  
+  // Government ID Information
+  documentType      DocumentType        // Updated to use enum
+  documentNumber    String
+  documentExpiryDate DateTime?
+  documentImages    Json                // Array of image objects with url and thumbnail
+  
+  // Address Information
+  addressType       String              // AddressType enum
+  address           String
+  city              String?
+  region            String?
+  postalCode        String?
+  digitalAddressCode String?            // Ghana Digital Address System
+  landmark          String?
+  addressProofImages Json?              // Array of image objects with url and thumbnail
+  
+  // Face Verification
+  facePhoto         Json                // Image object with url and thumbnail
+  
+  // Verification Status
+  status            VerificationStatus  @default(PENDING)
+  submittedAt       DateTime            @default(now())
+  reviewedAt        DateTime?
+  reviewedBy        String?
+  notes             String?
+  additionalNotes   String?
+  
+  // Relations
+  sellerProfile     SellerProfile       @relation(fields: [sellerProfileId], references: [id], onDelete: Cascade)
+  
+  @@map("seller_verification")
+}
+
+enum DocumentType {
+  NATIONAL_ID
+  DRIVERS_LICENSE
+  PASSPORT
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+// Location Management
+model Country {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  code      String     @unique
+  createdAt DateTime   @default(now())
+  
+  // Relations
+  states    State[]
+  
+  @@map("countries")
+}
+
+model State {
+  id        String   @id @default(cuid())
+  name      String
+  code      String?
+  countryId String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  cities    City[]
+  
+  @@unique([name, countryId])
+  @@map("states")
+}
+
+model City {
+  id        String   @id @default(cuid())
+  name      String
+  stateId   String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  state     State    @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  ads       Ad[]
+  
+  @@unique([name, stateId])
+  @@map("cities")
+}
+
+// Category Management
+model Category {
+  id          String          @id @default(cuid())
+  name        String
+  slug        String          @unique
+  description String?
+  icon        String?
+  parentId    String?
+  isActive    Boolean         @default(true)
+  sortOrder   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  // Relations
+  parent      Category?       @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[]      @relation("CategoryHierarchy")
+  fields      CategoryField[]
+  ads         Ad[]
+  
+  @@map("categories")
+}
+
+model CategoryField {
+  id           String            @id @default(cuid())
+  categoryId   String
+  name         String
+  label        String
+  type         CategoryFieldType
+  isRequired   Boolean           @default(false)
+  options      Json?             // For select/radio fields
+  validation   Json?             // Validation rules
+  sortOrder    Int               @default(0)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  
+  // Relations
+  category     Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  fieldValues  AdFieldValue[]
+  
+  @@unique([categoryId, name])
+  @@map("category_fields")
+}
+
+enum CategoryFieldType {
+  TEXT
+  NUMBER
+  SELECT
+  RADIO
+  CHECKBOX
+  TEXTAREA
+  DATE
+  BOOLEAN
+}
+
+// Ad Management
+model Ad {
+  id              String            @id @default(cuid())
+  title           String
+  description     String
+  price           Decimal?          @db.Decimal(10, 2)
+  currency        String            @default("USD")
+  condition       AdCondition?
+  images          String[]
+  videos          String[]
+  status          AdStatus          @default(DRAFT)
+  isPromoted      Boolean           @default(false)
+  promotionEnds   DateTime?
+  views           Int               @default(0)
+  userId          String
+  categoryId      String
+  cityId          String?
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  contactPhone    String?
+  contactEmail    String?
+  isNegotiable    Boolean           @default(false)
+  expiresAt       DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  // Relations
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category        Category          @relation(fields: [categoryId], references: [id])
+  city            City?             @relation(fields: [cityId], references: [id])
+  savedBy         SavedAd[]
+  interactions    AdInteraction[]
+  fieldValues     AdFieldValue[]
+  tagLinks        AdTagLink[]
+  comments        AdComment[]
+  promotionUsages PromotionUsage[]
+  
+  @@map("ads")
+}
+
+enum AdCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum AdStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  EXPIRED
+  SUSPENDED
+  DELETED
+}
+
+model AdFieldValue {
+  id              String        @id @default(cuid())
+  adId            String
+  categoryFieldId String
+  value           String
+  createdAt       DateTime      @default(now())
+  
+  // Relations
+  ad              Ad            @relation(fields: [adId], references: [id], onDelete: Cascade)
+  categoryField   CategoryField @relation(fields: [categoryFieldId], references: [id], onDelete: Cascade)
+  
+  @@unique([adId, categoryFieldId])
+  @@map("ad_field_values")
+}
+
+model SavedAd {
+  id        String   @id @default(cuid())
+  userId    String
+  adId      String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ad        Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, adId])
+  @@map("saved_ads")
+}
+
+model AdInteraction {
+  id            String            @id @default(cuid())
+  userId        String?
+  adId          String
+  type          InteractionType
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime          @default(now())
+  
+  // Relations
+  user          User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ad            Ad                @relation(fields: [adId], references: [id], onDelete: Cascade)
+  
+  @@map("ad_interactions")
+}
+
+enum InteractionType {
+  VIEW
+  CLICK
+  CONTACT_REVEAL
+  PHONE_CLICK
+  EMAIL_CLICK
+  SHARE
+}
+
+// Tag Management
+model AdTag {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  slug      String      @unique
+  color     String?
+  createdAt DateTime    @default(now())
+  
+  // Relations
+  adLinks   AdTagLink[]
+  
+  @@map("ad_tags")
+}
+
+model AdTagLink {
+  id        String   @id @default(cuid())
+  adId      String
+  tagId     String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  ad        Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+  tag       AdTag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([adId, tagId])
+  @@map("ad_tag_links")
+}
+
+// Comment Management
+model AdComment {
+  id        String   @id @default(cuid())
+  adId      String
+  userId    String
+  content   String
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  ad        Ad         @relation(fields: [adId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    AdComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   AdComment[] @relation("CommentReplies")
+  
+  @@map("ad_comments")
+}
+
+// Chat Management
+model Chat {
+  id          String        @id @default(cuid())
+  senderId    String
+  receiverId  String
+  adId        String?
+  lastMessage String?
+  lastMessageAt DateTime?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relations
+  sender      User          @relation("ChatSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User          @relation("ChatReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  messages    ChatMessage[]
+  
+  @@unique([senderId, receiverId, adId])
+  @@map("chats")
+}
+
+model ChatMessage {
+  id         String      @id @default(cuid())
+  chatId     String
+  senderId   String
+  receiverId String
+  content    String
+  type       MessageType @default(TEXT)
+  attachments String[]
+  isRead     Boolean     @default(false)
+  readAt     DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  
+  // Relations
+  chat       Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender     User        @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User        @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  @@map("chat_messages")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  LOCATION
+  SYSTEM
+}
+
+// Thread Management (for notifications/support)
+model Thread {
+  id        String          @id @default(cuid())
+  userId    String
+  title     String
+  type      ThreadType
+  status    ThreadStatus    @default(OPEN)
+  priority  ThreadPriority  @default(NORMAL)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  
+  // Relations
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ThreadMessage[]
+  
+  @@map("threads")
+}
+
+enum ThreadType {
+  SUPPORT
+  NOTIFICATION
+  SYSTEM
+}
+
+enum ThreadStatus {
+  OPEN
+  CLOSED
+  PENDING
+}
+
+enum ThreadPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model ThreadMessage {
+  id        String   @id @default(cuid())
+  threadId  String
+  userId    String
+  content   String
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  // Relations
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("thread_messages")
+}
+
+// Notification Management
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  
+  // Relations
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("notifications")
+}
+
+enum NotificationType {
+  AD_INTERACTION
+  CHAT_MESSAGE
+  PROMOTION
+  SYSTEM
+  SELLER_REVIEW
+  AD_COMMENT
+}
+
+model UserPushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  String   // ios, android, web
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_push_tokens")
+}
+
+// Promotion Management
+model PromotionPlan {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  currency    String    @default("USD")
+  duration    Int       // in days
+  features    Json      // promotion features
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  promotions  Promotion[]
+  
+  @@map("promotion_plans")
+}
+
+model Promotion {
+  id              String           @id @default(cuid())
+  planId          String
+  name            String
+  description     String?
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  // Relations
+  plan            PromotionPlan    @relation(fields: [planId], references: [id])
+  usages          PromotionUsage[]
+  
+  @@map("promotions")
+}
+
+model PromotionUsage {
+  id          String    @id @default(cuid())
+  promotionId String
+  userId      String
+  adId        String?
+  orderId     String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  
+  // Relations
+  promotion   Promotion @relation(fields: [promotionId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ad          Ad?       @relation(fields: [adId], references: [id], onDelete: SetNull)
+  order       Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  
+  @@map("promotion_usages")
+}
+
+// Order Management
+model Order {
+  id              String           @id @default(cuid())
+  userId          String
+  amount          Decimal          @db.Decimal(10, 2)
+  currency        String           @default("USD")
+  status          OrderStatus      @default(PENDING)
+  paymentMethod   String?
+  paymentId       String?
+  items           Json             // order items details
+  metadata        Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promotionUsages PromotionUsage[]
+  
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}

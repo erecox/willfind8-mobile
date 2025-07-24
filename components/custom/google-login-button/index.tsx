@@ -40,7 +40,7 @@ export function GoogleLoginButton({ className }: { className?: string }) {
         className={`bg-white rounded-lg flex justify-between data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
     >
         <GoogleSvg width={24} height={24} style={{ marginRight: 10, }} />
-        <ButtonText className='self-center'>Sign in with Google</ButtonText>
+        <ButtonText className='text-color-black self-center'>Sign in with Google</ButtonText>
         <View />
     </Button>)
 }

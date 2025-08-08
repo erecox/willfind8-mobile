@@ -16,13 +16,15 @@ export default function TabsLayout() {
         screenOptions={{ headerShown: false }}
         screenListeners={{
           tabPress: (e) => {
-            if (e.target?.split("-")[0] === "add-ad") {
-              e.preventDefault();
-              router.push('/posts/edit-post');
-            }
-            if (e.target?.split("-")[0] !== "index" && !user) {
+            const target = e.target?.split("-")[0];
+            if (!(target === "index" || target === "categories") && !user) {
               e.preventDefault();
               return setAuthAlert(true);
+            }
+
+            if (target === "add-ad") {
+              e.preventDefault();
+              return router.push({pathname:"/(ads)/edit"});
             }
           },
         }} >

@@ -69,7 +69,7 @@ export enum NotificationType {
 }
 
 // Core API Types matching Prisma Schema
-export interface ApiUser {
+export interface User {
   id: string;
   email?: string;
   username: string;
@@ -88,7 +88,7 @@ export interface ApiUser {
   updatedAt: string;
 }
 
-export interface ApiCategory {
+export interface Category {
   id: string;
   name: string;
   slug: string;
@@ -99,8 +99,8 @@ export interface ApiCategory {
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
-  parent?: ApiCategory;
-  children?: ApiCategory[];
+  parent?: Category;
+  children?: Category[];
   fields?: CategoryField[];
 }
 
@@ -118,7 +118,7 @@ export interface CategoryField {
   updatedAt: string;
 }
 
-export interface ApiAd {
+export interface Ad {
   id: string;
   title: string;
   description: string;
@@ -143,8 +143,8 @@ export interface ApiAd {
   expiresAt?: string;
   createdAt: string;
   updatedAt: string;
-  user?: ApiUser;
-  category?: ApiCategory;
+  user?: User;
+  category?: Category;
   city?: City;
   fieldValues?: AdFieldValue[];
   savedBy?: SavedAd[];
@@ -164,8 +164,8 @@ export interface SavedAd {
   userId: string;
   adId: string;
   createdAt: string;
-  user?: ApiUser;
-  ad?: ApiAd;
+  user?: User;
+  ad?: Ad;
 }
 
 export interface Country {
@@ -204,8 +204,8 @@ export interface Chat {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  sender?: ApiUser;
-  receiver?: ApiUser;
+  sender?: User;
+  receiver?: User;
   messages?: ChatMessage[];
 }
 
@@ -221,8 +221,8 @@ export interface ChatMessage {
   readAt?: string;
   createdAt: string;
   updatedAt: string;
-  sender?: ApiUser;
-  receiver?: ApiUser;
+  sender?: User;
+  receiver?: User;
   chat?: Chat;
 }
 
@@ -234,8 +234,8 @@ export interface AdComment {
   parentId?: string;
   createdAt: string;
   updatedAt: string;
-  ad?: ApiAd;
-  user?: ApiUser;
+  ad?: Ad;
+  user?: User;
   parent?: AdComment;
   replies?: AdComment[];
 }
@@ -250,7 +250,7 @@ export interface Notification {
   isRead: boolean;
   readAt?: string;
   createdAt: string;
-  user?: ApiUser;
+  user?: User;
 }
 
 // Request/Response Types
@@ -311,7 +311,7 @@ export interface UpdateAdRequest {
 
 export interface AuthResponse {
   access_token: string;
-  user: ApiUser;
+  user: User;
 }
 
 export interface ApiResponse<T> {
@@ -361,10 +361,7 @@ export type Picture = {
   full: string;
 }
 
-export type Product = ApiAd; // Alias for backward compatibility
-export type Category = ApiCategory; // Alias for backward compatibility
-export type User = ApiUser; // Alias for backward compatibility
-
+export type Product = Ad; // Alias for backward compatibility
 export type AccountProvider = AuthProvider; // Alias for backward compatibility
 
 export type Suggestion = {

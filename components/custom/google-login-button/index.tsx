@@ -1,46 +1,84 @@
-import { Button, ButtonText } from '@/components/ui/button';
+import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import {
     GoogleSignin as GoogleOGneTapSignIn,
 } from '@react-native-google-signin/google-signin';
-import { Alert } from 'react-native';
-import GoogleSvg from "@/assets/icons/icons8-google-48.svg";
-import { View } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '@/hooks/useAuth';
+import { useState } from 'react';
+import { useAppToast } from '@/hooks/useToast';
 import { router } from 'expo-router';
+import { GoogleIcon } from '@/components/custom/icons/google-icon';
 
-export function GoogleLoginButton({ className }: { className?: string }) {
-    const { login } = useAuthStore();
+export function GoogleLoginButton({ size, className, onSuccess }: { className?: string, size?: "xs" | "sm" | "md" | "lg" | "xl", onSuccess?: () => void }) {
+    const [isLoading, setIsLoading] = useState(false);
+    const { socialAuthAsync } = useAuthStore();
+    const { showError, showSuccess } = useAppToast();
 
     const startSignInFlow = async () => {
         try {
+            setIsLoading(true);
             await GoogleOGneTapSignIn.hasPlayServices();
+            const token = GoogleOGneTapSignIn.getCurrentUser()?.idToken;
+            await GoogleOGneTapSignIn.signOut();
+            if (token) await GoogleOGneTapSignIn.clearCachedAccessToken(token);
             const signInResponse = await GoogleOGneTapSignIn.signIn();
-            if (signInResponse.type === 'success') {
-                // use signInResponse.data
 
-                console.log("sign data", signInResponse.data);
-                login(signInResponse.data.user, signInResponse.data.idToken);
-                
-                if(router.canGoBack()) return router.back();
-                else router.replace("/(tabs)");
+            if (signInResponse.type === 'success') {
+                const googleUser = signInResponse.data.user;
+
+                // Prepare social auth data
+                const socialAuthData = {
+                    providerId: googleUser.id,
+                    provider: 'GOOGLE' as const,
+                    email: googleUser.email,
+                    firstName: googleUser.givenName || undefined,
+                    lastName: googleUser.familyName || undefined,
+                    avatar: googleUser.photo || undefined
+                };
+
+                // Send to backend API
+                await socialAuthAsync(socialAuthData);
+
+                showSuccess(
+                    "Google Sign-In Successful!",
+                    "Welcome to WillFind8!"
+                );
+
+                // Navigate back or to main screen on success
+                if (router.canGoBack()) {
+                    router.back();
+                } else {
+                    router.replace("/(tabs)");
+                }
+                if (onSuccess) onSuccess();
 
             } else if (signInResponse.type === 'cancelled') {
-                Alert.alert("Sign in with Google","Sign in was cancelled!");
+                // User cancelled, no need to show error
+                console.log("Google sign-in cancelled");
             }
-            // the else branches correspond to the user canceling the sign in
-        } catch (error) {
-            // handle error
-
-            console.log("error", error);
+        } catch (error: any) {
+            showError(
+                "Google Sign-In Error",
+                error.message || "Failed to sign in with Google. Please try again."
+            );
+            console.log("Google sign-in error:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    return (<Button
-        onPress={startSignInFlow}
-        className={`bg-white rounded-lg flex justify-between data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
-    >
-        <GoogleSvg width={24} height={24} style={{ marginRight: 10, }} />
-        <ButtonText className='text-color-black self-center'>Sign in with Google</ButtonText>
-        <View />
-    </Button>)
+    return (
+        <Button
+            size={size}
+            onPress={startSignInFlow}
+            disabled={isLoading}
+            className={`bg-white rounded-lg flex-row justify-center items-center data-[active=true]:opacity-60 data-[active=true]:bg-white-500 ${className}`}
+        >
+            <GoogleIcon />
+            <ButtonText className='text-black flex-1 text-center'>
+                {isLoading ? "Signing in..." : "Sign in with Google"}
+            </ButtonText>
+            <ActivityIndicator animating={isLoading} size="small" />
+        </Button>
+    );
 }

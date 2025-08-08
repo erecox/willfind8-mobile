@@ -21,16 +21,16 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient} >
         <GluestackUIProvider>
-          <LoaderProvider>
-            <Stack screenOptions={{ animation: "slide_from_right", headerShown: false }}>
-              <Stack.Screen name="(tabs)"  options={{title:"Home"}}/>
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(account)" />
-              <Stack.Screen name="(search)" />
-              <Stack.Screen name="(ads)" />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-          </LoaderProvider>
+            <LoaderProvider>
+              <Stack screenOptions={{ animation: "slide_from_right", headerShown: false }}>
+                <Stack.Screen name="(tabs)"  options={{title:"Home"}}/>
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(account)" />
+                <Stack.Screen name="(search)" />
+                <Stack.Screen name="(ads)" />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+            </LoaderProvider>
         </GluestackUIProvider>
       </QueryClientProvider>
       <StatusBar style="auto" />

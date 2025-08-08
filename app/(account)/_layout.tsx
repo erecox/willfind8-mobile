@@ -23,7 +23,8 @@ export default function AccountLayout() {
       <Stack.Screen name="recently-viewed" options={{ title: "Recently Viewed" }} />
        <Stack.Screen name="notifications" options={{ title: "Notifications" }} />
       <Stack.Screen name="reviews" options={{ title: "Ratings & Reviews" }} />
-      <Stack.Screen name="settings" options={{ title: "Settings" }} />
+      <Stack.Screen name="edit-profile" options={{ title: "Edit Profile" }} />
+       <Stack.Screen name="signin-and-security" options={{ title: "SignIn & Security" }} />
       <Stack.Screen name="terms" options={{ title: "Terms of Use" }} />
     </Stack>
     </SafeAreaView>

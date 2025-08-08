@@ -1,17 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import * as SecureStorage from "expo-secure-store";
-import { ApiUser, LoginRequest, RegisterRequest } from "@/types";
+import { User, LoginRequest, RegisterRequest } from "@/types";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { authService } from "@/utils/authService";
 
 type AuthState = {
-  user: ApiUser | null;
+  user: User | null;
   accessToken: string | null;
   isLoggedIn: boolean;
   isLoading: boolean;
   error: string | null;
-  setUser: (user: ApiUser | null) => void;
+  setUser: (user: User | null) => void;
   clearUser: () => void;
   setAccessToken: (token: string | null) => void;
   clearAccessToken: () => void;
@@ -20,7 +20,16 @@ type AuthState = {
   clearError: () => void;
   loginAsync: (credentials: LoginRequest) => Promise<void>;
   registerAsync: (userData: RegisterRequest) => Promise<void>;
+  socialAuthAsync: (socialData: {
+    providerId: string;
+    provider: 'GOOGLE' | 'FACEBOOK';
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+  }) => Promise<void>;
   refreshTokenAsync: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -39,6 +48,35 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
       clearError: () => set({ error: null }),
+
+      // Social authentication
+      socialAuthAsync: async (socialData: {
+        providerId: string;
+        provider: 'GOOGLE' | 'FACEBOOK';
+        email: string;
+        firstName?: string;
+        lastName?: string;
+        avatar?: string;
+      }) => {
+        try {
+          set({ isLoading: true, error: null });
+          const response = await authService.socialAuth(socialData);
+          
+          // Store token in secure storage
+          await SecureStorage.setItemAsync("accessToken", response.access_token);
+          
+          set({ 
+            user: response.user, 
+            accessToken: response.access_token, 
+            isLoggedIn: true,
+            isLoading: false 
+          });
+        } catch (error: any) {
+          const errorMessage = error.response?.data?.message || error.message || 'Social authentication failed';
+          set({ error: errorMessage, isLoading: false });
+          throw error;
+        }
+      },
       
       loginAsync: async (credentials: LoginRequest) => {
         try {
@@ -98,6 +136,16 @@ export const useAuthStore = create<AuthState>()(
           // If refresh fails, logout user
           await get().logout();
           throw error;
+        }
+      },
+
+      refreshUser: async () => {
+        try {
+          const user = await authService.getProfile();
+          set({ user });
+        } catch (error: any) {
+          // If getting profile fails, try to refresh token
+          await get().refreshTokenAsync();
         }
       },
 

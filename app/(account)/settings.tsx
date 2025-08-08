@@ -1,5 +1,6 @@
 import React from "react";
 import { ScrollView } from "@/components/ui/scroll-view";
+import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { Box } from "@/components/ui/box";
 import { StarIcon } from "@/components/ui/icon";
 import {
@@ -15,6 +16,7 @@ import { ActionBox } from "@/components/custom/action-box";
 export default function SettingsScreen() {
 
   return (
+    <SafeAreaView className="flex-1">
       <ScrollView
         className={`bg-background-200`}
         contentContainerClassName="p-3 pb-6"
@@ -30,5 +32,6 @@ export default function SettingsScreen() {
           </VStack>
         </Box>
       </ScrollView>
+    </SafeAreaView>
   );
 }

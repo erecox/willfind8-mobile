@@ -1,10 +1,10 @@
 import api from './api';
-import { ApiAd, CreateAdRequest, UpdateAdRequest, PaginatedResponse, AdStatus, AdCondition } from '@/types';
+import { Ad, CreateAdRequest, UpdateAdRequest, PaginatedResponse, AdStatus, AdCondition } from '@/types';
 
 export const adService = {
   // Create a new ad
-  create: async (data: CreateAdRequest): Promise<ApiAd> => {
-    const response = await api.post<ApiAd>('/api/v1/ads', data);
+  create: async (data: CreateAdRequest): Promise<Ad> => {
+    const response = await api.post<Ad>('/api/v1/ads', data);
     return response.data;
   },
 
@@ -20,20 +20,45 @@ export const adService = {
     search?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
-  }): Promise<PaginatedResponse<ApiAd>> => {
-    const response = await api.get<PaginatedResponse<ApiAd>>('/api/v1/ads', { params });
-    return response.data;
+  }): Promise<PaginatedResponse<Ad>> => {
+    try {
+      const response = await api.get<PaginatedResponse<Ad>>('/api/v1/ads', { params });
+      // Ensure we have a valid response structure
+      if (!response.data) {
+        return {
+          data: [],
+          pagination: {
+            page: 1,
+            limit: 20,
+            total: 0,
+            totalPages: 0
+          }
+        };
+      }
+      return response.data;
+    } catch (error) {
+      // Return empty result on error to prevent crashes
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 20,
+          total: 0,
+          totalPages: 0
+        }
+      };
+    }
   },
 
   // Get ad by ID
-  getById: async (id: string): Promise<ApiAd> => {
-    const response = await api.get<ApiAd>(`/api/v1/ads/${id}`);
+  getById: async (id: string): Promise<Ad> => {
+    const response = await api.get<Ad>(`/api/v1/ads/${id}`);
     return response.data;
   },
 
   // Update an existing ad
-  update: async (id: string, data: UpdateAdRequest): Promise<ApiAd> => {
-    const response = await api.patch<ApiAd>(`/api/v1/ads/${id}`, data);
+  update: async (id: string, data: UpdateAdRequest): Promise<Ad> => {
+    const response = await api.patch<Ad>(`/api/v1/ads/${id}`, data);
     return response.data;
   },
 
@@ -47,8 +72,8 @@ export const adService = {
     page?: number;
     limit?: number;
     status?: AdStatus;
-  }): Promise<PaginatedResponse<ApiAd>> => {
-    const response = await api.get<PaginatedResponse<ApiAd>>('/api/v1/ads/my-ads', { params });
+  }): Promise<PaginatedResponse<Ad>> => {
+    const response = await api.get<PaginatedResponse<Ad>>('/api/v1/ads/my-ads', { params });
     return response.data;
   },
 
@@ -56,8 +81,8 @@ export const adService = {
   getSavedAds: async (params?: {
     page?: number;
     limit?: number;
-  }): Promise<PaginatedResponse<ApiAd>> => {
-    const response = await api.get<PaginatedResponse<ApiAd>>('/api/v1/ads/saved', { params });
+  }): Promise<PaginatedResponse<Ad>> => {
+    const response = await api.get<PaginatedResponse<Ad>>('/api/v1/ads/saved', { params });
     return response.data;
   },
 

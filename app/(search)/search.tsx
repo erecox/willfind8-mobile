@@ -4,6 +4,7 @@ import { ChevronLeftIcon, Icon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
 import { Card } from "@/components/ui/card";
 import { Pressable } from "@/components/ui/pressable";
+import { SafeAreaView } from "@/components/ui/safe-area-view";
 import { SearchBox, SuggestionDropdownList } from "@/components/custom/search-box";
 import { router } from "expo-router";
 import { Suggestion } from "@/types";
@@ -29,7 +30,8 @@ export default function SearchScreen() {
 
 
   return (
-    <VStack className="flex-1">
+    <SafeAreaView className="flex-1">
+      <VStack className="flex-1">
       <Card size="sm">
         <Box className="w-full flex flex-row items-center p-0">
           <Pressable onPress={() => router.back()}>
@@ -43,6 +45,7 @@ export default function SearchScreen() {
         onSelect={onSelect}
         query={query}
         debouncedQuery={debouncedQuery} />
-    </VStack>
+      </VStack>
+    </SafeAreaView>
   );
 }

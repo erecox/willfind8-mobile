@@ -3,7 +3,6 @@ import { Platform } from "react-native";
 import { Pressable } from "@/components/ui/pressable";
 import { router } from "expo-router";
 import { ChevronLeftIcon, Icon } from "@/components/ui/icon";
-import { Text } from "@/components/ui/text";
 
 export function BackButton(props: any) {
   return Platform.OS === "ios" ? (

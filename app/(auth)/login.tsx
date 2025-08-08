@@ -28,12 +28,24 @@ import { GoogleLoginButton } from "@/components/custom/google-login-button";
 import { LogoIcon } from "@/components/custom/logo-icon";
 import { Link, LinkText } from "@/components/ui/link";
 import { ForgotPasswordModal } from "@/components/modals/forgot-password";
-import { ActivityIndicator, Alert } from "react-native";
+import { ActivityIndicator } from "react-native";
+import { useAppToast } from "@/hooks/useToast";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Please enter a valid email address")
-    .required("Email is required"),
+    .test('email-or-phone', 'Please enter a valid email address or phone number', function(value) {
+      if (!value) return false;
+      
+      // Check if it's a valid email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (emailRegex.test(value)) return true;
+      
+      // Check if it's a valid phone number (basic validation)
+      const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+      if (phoneRegex.test(value)) return true;
+      
+      return false;
+    }),
   password: Yup.string()
     .min(6, "At least 6 characters are required")
     .required("Password is required"),
@@ -44,6 +56,7 @@ export default function LoginLayout() {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showForgotPassModel, setShowForgotPassModel] = useState(false);
   const { loginAsync, isLoading, error, clearError } = useAuthStore();
+  const { showError, showSuccess, showInfo } = useAppToast();
 
   const handleCreateAccount = () => {
     router.push({
@@ -61,7 +74,36 @@ export default function LoginLayout() {
     onSubmit: async (values) => {
       try {
         clearError();
-        await loginAsync(values);
+        const result = await loginAsync(values);
+        
+        showSuccess("Login Successful", "Welcome back to WillFind8!");
+        
+        // Check if user needs verification
+        const { user } = useAuthStore.getState();
+        if (user && !user.isVerified) {
+          // Determine verification method based on user data
+          const hasEmail = user.email && user.emailVerified === false;
+          const hasPhone = user.phone && user.phoneVerified === false;
+          
+          if (hasEmail || hasPhone) {
+            const method = hasEmail ? 'email' : 'phone';
+            const contact = hasEmail ? user.email : user.phone;
+            
+            showInfo(
+              "Verification Required",
+              `Please verify your ${method} to access all features.`
+            );
+            
+            router.push({
+              pathname: "/(auth)/verify",
+              params: { 
+                method,
+                contact
+              }
+            });
+            return;
+          }
+        }
         
         // Navigate back or to main screen on success
         if (router.canGoBack()) {
@@ -71,7 +113,7 @@ export default function LoginLayout() {
         }
       } catch (error: any) {
         // Error is handled in the auth store
-        Alert.alert(
+        showError(
           "Login Failed", 
           error.response?.data?.message || "Please check your credentials and try again."
         );
@@ -82,7 +124,7 @@ export default function LoginLayout() {
   // Show error if exists
   React.useEffect(() => {
     if (error) {
-      Alert.alert("Login Error", error);
+      showError("Login Error", error);
     }
   }, [error]);
 
@@ -90,16 +132,15 @@ export default function LoginLayout() {
     <SafeAreaView className="flex-1">
       <ScrollView
         className={`bg-background-50`}
-        contentContainerClassName="px-5 pt-10"
         keyboardShouldPersistTaps="handled"
       >
         <Box className="p-5 rounded-lg bg-background-0">
-          <Center className="mb-10">
+          <Center className="mb-5">
             <LogoIcon />
             <Heading size="md" className="text-center">
               Welcome to Willfind8
             </Heading>
-            <Text className="text-center mt-3">
+            <Text size='xs' className="text-center mt-3">
               Type your e-mail or phone number to log in or create a Willfind8 account.
             </Text>
           </Center>
@@ -107,17 +148,17 @@ export default function LoginLayout() {
           <FormControl isInvalid={!!(formik.touched.email && formik.errors.email)} className="w-full">
             <FormControlLabel>
               <FormControlLabelText size="sm">
-                Email
+                Email or Phone
               </FormControlLabelText>
             </FormControlLabel>
             <Input>
               <InputField
                 type={"text"}
-                keyboardType="email-address"
+                keyboardType="default"
                 value={formik.values.email}
                 onChangeText={formik.handleChange("email")}
                 onBlur={formik.handleBlur("email")}
-                placeholder="Enter your email address"
+                placeholder="Enter your email or phone number"
               />
             </Input>
             {formik.touched.email && formik.errors.email && (
@@ -184,8 +225,7 @@ export default function LoginLayout() {
           <Button
             onPress={handleCreateAccount}
             variant="outline"
-            action="secondary"
-            className="mt-6 w-full border-dashed"
+            className="mt-6 w-full"
           >
             <ButtonText>Create An Account</ButtonText>
           </Button>

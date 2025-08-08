@@ -26,10 +26,10 @@ export function ActionBox({
       <Card className={`w-full bg-background-0 ${className}`}>
         <HStack className="w-full items-center justify-between">
           <HStack className="gap-2 items-center">
-            <Icon as={as} />
-            <VStack className="self-start flex items-center">
+            <Icon size="xl" as={as} />
+            <VStack className="self-start flex">
               <Text>{title}</Text>
-              {description && <Text size="xs">{description}</Text>}
+              {description && <Text className="text-gray-500" size="xs">{description}</Text>}
             </VStack>
           </HStack>
           <Icon as={ChevronRightIcon} />

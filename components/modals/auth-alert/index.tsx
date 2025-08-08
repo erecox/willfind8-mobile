@@ -1,18 +1,17 @@
+import { GoogleLoginButton } from "@/components/custom/google-login-button";
 import {
     AlertDialog,
     AlertDialogBackdrop,
     AlertDialogBody,
     AlertDialogContent,
-    AlertDialogFooter,
     AlertDialogHeader
 } from "@/components/ui/alert-dialog";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
-import { Icon, TrashIcon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
 import { router } from "expo-router";
-import { Box } from "lucide-react-native";
-import React from "react";
+import React, { useCallback } from "react";
 
 interface AuthAlertProps {
     onClose: () => void;
@@ -20,27 +19,44 @@ interface AuthAlertProps {
 };
 
 export const AuthAlert = ({ onClose, showAlertDialog }: AuthAlertProps) => {
-    const handleLoginPress = () => {
+    const handleLoginPress = useCallback(() => {
         router.push('/(auth)/login');
         onClose();
-    }
+    }, []);
+
+    const handleSignUpPress = useCallback(() => {
+        router.push('/(auth)/signup');
+        onClose();
+    }, [])
+
     return (<>
-        <AlertDialog isOpen={showAlertDialog} onClose={onClose}>
+        <AlertDialog className="px-5" isOpen={showAlertDialog} onClose={onClose}>
             <AlertDialogBackdrop />
-            <AlertDialogContent className="w-full max-w-[415px] gap-4 items-center">
+            <AlertDialogContent className="w-full gap-4 items-center bg-background-100">
                 <AlertDialogHeader className="mb-2">
                     <Heading size="md">Sign In</Heading>
                 </AlertDialogHeader>
                 <AlertDialogBody>
-                    <Text size="sm" className="text-center">
-                        The invoice will be deleted from the invoices section and in the documents folder.
-                        This cannot be undone.</Text>
-                    <Button size="sm" action="negative"
-                        onPress={handleLoginPress} className="px-[30px]" >
-                        <ButtonText>Login</ButtonText></Button>
-                    <Button variant="outline" action="secondary" onPress={onClose}
-                        size="sm" className="px-[30px]" >
-                        <ButtonText>Cancel</ButtonText></Button>
+
+                    <VStack className="gap-5">
+                        <Text size="sm" className="text-center">You need to login before you continue.</Text>
+                        <Button size="sm"
+                            onPress={handleLoginPress} >
+                            <ButtonText>Login</ButtonText>
+                        </Button>
+
+                        <Button variant="outline" size="sm"
+                            onPress={handleSignUpPress} >
+                            <ButtonText>Sign up</ButtonText>
+                        </Button>
+
+                        <GoogleLoginButton onSuccess={onClose} size='md' />
+
+                        <Button variant="link" size="sm"
+                            onPress={onClose} >
+                            <ButtonText className="text-black data-[active=true]:text-gray-500">Cancel</ButtonText>
+                        </Button>
+                    </VStack>
                 </AlertDialogBody>
             </AlertDialogContent>
         </AlertDialog>

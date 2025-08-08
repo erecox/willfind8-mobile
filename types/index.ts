@@ -68,6 +68,19 @@ export enum NotificationType {
   AD_COMMENT = 'AD_COMMENT'
 }
 
+export enum DocumentType {
+  NATIONAL_ID = 'NATIONAL_ID',
+  DRIVERS_LICENSE = 'DRIVERS_LICENSE',
+  PASSPORT = 'PASSPORT'
+}
+
+export enum VerificationStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPIRED'
+}
+
 // Core API Types matching Prisma Schema
 export interface User {
   id: string;
@@ -86,6 +99,61 @@ export interface User {
   providerId?: string;
   createdAt: string;
   updatedAt: string;
+  sellerProfile?: SellerProfile;
+}
+
+export interface SellerProfile {
+  id: string;
+  userId: string;
+  businessName?: string;
+  businessType?: string;
+  description?: string;
+  website?: string;
+  socialMedia?: any; // JSON field
+  rating: number;
+  totalReviews: number;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  user?: User;
+  verification?: SellerVerification;
+}
+
+export interface SellerReview {
+  id: string;
+  sellerId: string;
+  reviewerId: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  updatedAt: string;
+  seller?: User;
+  reviewer?: User;
+}
+
+export interface SellerVerification {
+  id: string;
+  sellerProfileId: string;
+  documentType: DocumentType;
+  documentNumber: string;
+  documentExpiryDate?: string;
+  documentImages: any; // JSON field - array of image objects
+  addressType: string;
+  address: string;
+  city?: string;
+  region?: string;
+  postalCode?: string;
+  digitalAddressCode?: string;
+  landmark?: string;
+  addressProofImages?: any; // JSON field - array of image objects
+  facePhoto: any; // JSON field - image object
+  status: VerificationStatus;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  notes?: string;
+  additionalNotes?: string;
+  sellerProfile?: SellerProfile;
 }
 
 export interface Category {
@@ -353,6 +421,57 @@ export interface UpdateProfileRequest {
   lastName?: string;
   avatar?: string;
   phone?: string;
+}
+
+export interface CreateSellerProfileRequest {
+  businessName: string;
+  businessType: string;
+  description?: string;
+  website?: string;
+  socialMedia?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+  };
+}
+
+export interface UpdateSellerProfileRequest {
+  businessName?: string;
+  businessType?: string;
+  description?: string;
+  website?: string;
+  socialMedia?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    linkedin?: string;
+  };
+}
+
+export interface SellerVerificationRequest {
+  documentType: DocumentType;
+  documentNumber: string;
+  documentExpiryDate?: string;
+  documentImages: Array<{
+    url: string;
+    thumbnail: string;
+  }>;
+  addressType: string;
+  address: string;
+  city?: string;
+  region?: string;
+  postalCode?: string;
+  digitalAddressCode?: string;
+  landmark?: string;
+  addressProofImages?: Array<{
+    url: string;
+    thumbnail: string;
+  }>;
+  facePhoto: {
+    url: string;
+    thumbnail: string;
+  };
 }
 
 // Legacy types for backward compatibility (will be gradually replaced)

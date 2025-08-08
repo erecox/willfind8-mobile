@@ -12,13 +12,18 @@ import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
-import { FormControl, FormControlLabel, FormControlLabelText, FormControlError, FormControlErrorText, FormControlHelper, FormControlHelperText } from "@/components/ui/form-control";
+import {
+  FormControl,
+  FormControlLabel,
+  FormControlLabelText,
+  FormControlError, FormControlErrorText,
+  FormControlHelper, FormControlHelperText
+} from "@/components/ui/form-control";
 import { Icon } from "@/components/ui/icon";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ActivityIndicator } from "react-native";
 import { useAppToast } from "@/hooks/useToast";
-import { authService } from "@/utils/authService";
 import { userService } from "@/utils/userService";
 import { XIcon, MailIcon, PhoneIcon, AlertCircleIcon } from "lucide-react-native";
 
@@ -40,13 +45,13 @@ interface VerificationModalProps {
   isExistingVerification?: boolean; // For verifying existing unverified email/phone
 }
 
-export function VerificationModal({ 
-  isOpen, 
-  onClose, 
-  onSuccess, 
-  method, 
-  contact, 
-  title, 
+export function VerificationModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  method,
+  contact,
+  title,
   description,
   isExistingVerification = false
 }: VerificationModalProps) {
@@ -76,15 +81,15 @@ export function VerificationModal({
             await userService.verifyPhoneChange(values.code);
           }
         }
-        
+
         showSuccess(
           "Verification Successful",
           `Your ${method} has been verified successfully.`
         );
-        
+
         onSuccess();
         formik.resetForm();
-        
+
       } catch (error: any) {
         showError(
           "Verification Failed",
@@ -99,7 +104,7 @@ export function VerificationModal({
   const handleResendCode = async () => {
     try {
       setIsResending(true);
-      
+
       if (isExistingVerification) {
         // Resend verification for existing unverified email/phone
         if (method === 'email') {
@@ -111,15 +116,15 @@ export function VerificationModal({
         // Resend verification for email/phone change
         await userService.resendChangeVerification(method);
       }
-      
+
       showSuccess(
         "Code Sent",
         `A new verification code has been sent to your ${method}.`
       );
-      
+
       // Start countdown
       setCountdown(60);
-      
+
     } catch (error: any) {
       showError(
         "Resend Failed",
@@ -155,7 +160,7 @@ export function VerificationModal({
   const defaultDescription = `Enter the 6-digit verification code sent to ${contact}`;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose}>
+    <Modal size="lg" isOpen={isOpen} onClose={handleClose}>
       <ModalBackdrop />
       <ModalContent>
         <ModalHeader>
@@ -164,14 +169,14 @@ export function VerificationModal({
             <Icon as={XIcon} />
           </ModalCloseButton>
         </ModalHeader>
-        
+
         <ModalBody>
           <VStack space="lg">
             <HStack className="items-center" space="md">
-              <Icon 
-                as={method === 'email' ? MailIcon : PhoneIcon} 
-                className="text-primary-600" 
-                size="md" 
+              <Icon
+                as={method === 'email' ? MailIcon : PhoneIcon}
+                className="text-primary-600"
+                size="md"
               />
               <VStack className="flex-1">
                 <Text className="font-medium">
@@ -232,31 +237,33 @@ export function VerificationModal({
         <ModalFooter>
           <VStack space="md" className="w-full">
             <Button
+              size="sm"
               className="w-full"
               onPress={() => formik.handleSubmit()}
               disabled={!formik.isValid || formik.isSubmitting}
             >
-              <ButtonText>
+              <ButtonText size="xs">
                 {formik.isSubmitting ? "Verifying..." : "Verify Code"}
               </ButtonText>
               <ActivityIndicator animating={formik.isSubmitting} />
             </Button>
 
             <Button
+              size="sm"
               variant="outline"
               className="w-full"
               disabled={countdown > 0 || isResending}
               onPress={handleResendCode}
             >
-              <ButtonText>
-                {countdown > 0 
-                  ? `Resend code in ${countdown}s` 
-                  : isResending 
-                    ? "Sending..." 
+              <ButtonText size="xs">
+                {countdown > 0
+                  ? `Resend code in ${countdown}s`
+                  : isResending
+                    ? "Sending..."
                     : "Resend verification code"
                 }
               </ButtonText>
-              <ActivityIndicator animating={isResending} />
+              {isResending && <ActivityIndicator animating={isResending} />}
             </Button>
           </VStack>
         </ModalFooter>

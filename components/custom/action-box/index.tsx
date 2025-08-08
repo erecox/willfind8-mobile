@@ -23,12 +23,12 @@ export function ActionBox({
 }: ActionBoxProps) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.5}>
-      <Card className={`w-full bg-background-0 ${className}`}>
+      <Card className={`w-full p-2 bg-background-0 ${className}`}>
         <HStack className="w-full items-center justify-between">
           <HStack className="gap-2 items-center">
             <Icon size="xl" as={as} />
             <VStack className="self-start flex">
-              <Text>{title}</Text>
+              <Text size="md">{title}</Text>
               {description && <Text className="text-gray-500" size="xs">{description}</Text>}
             </VStack>
           </HStack>

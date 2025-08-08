@@ -93,7 +93,7 @@ export default function AccountScreen() {
       >
         {/* Profile Header */}
         <Card className="mx-4 mt-4 p-6">
-          <VStack space="lg">
+          <VStack space="xs">
             <HStack space="md" className="items-center">
               <Avatar size="xl">
                 <AvatarFallbackText>
@@ -107,9 +107,9 @@ export default function AccountScreen() {
                 )}
               </Avatar>
 
-              <VStack className="flex-1" space="xs">
+              <VStack className="flex-1">
                 <HStack className="items-center justify-between">
-                  <Heading size="lg" className="flex-1">
+                  <Heading size="lg" className="flex-1 py-0">
                     {user.firstName} {user.lastName}
                   </Heading>
                   <TouchableOpacity onPress={handleEditProfile}>
@@ -127,7 +127,7 @@ export default function AccountScreen() {
                   size="sm"
                   variant="solid"
                   action={verificationStatus.color as any}
-                  className="self-start"
+                  className="self-start mt-2"
                 >
                   <BadgeCheckIcon size={12} />
                   <BadgeText>{verificationStatus.text}</BadgeText>
@@ -136,7 +136,7 @@ export default function AccountScreen() {
             </HStack>
 
             {/* Contact Info */}
-            <VStack space="sm">
+            <VStack space="xs">
               {user.email && (
                 <HStack space="sm" className="items-center">
                   <Icon as={MailIcon} className="text-typography-500" />
@@ -164,7 +164,7 @@ export default function AccountScreen() {
               <HStack space="sm" className="items-center">
                 <Icon as={CalendarIcon} className="text-typography-500" />
                 <Text size="sm" className="text-typography-700">
-                  Joined {moment(user.createdAt).format('MMM YYYY')}
+                  Joined {moment(user.createdAt).format('Do, MMM YYYY')}
                 </Text>
               </HStack>
             </VStack>
